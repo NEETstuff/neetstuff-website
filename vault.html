@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bearable Vault 589 - FLX Web 2 Wallet</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon"/>
+</head>
+<body>
+  <a href="index.html" class="back-button">← Back to Home</a>
+  <div class="vault-container">
+    <header class="top-bar">
+      <h1>Bearable Vault 589</h1>
+      <div class="balance-summary">
+        <span>Total Value: <strong id="total-value">$589.42</strong></span>
+      </div>
+    </header>
+
+    <div class="vault-hero">
+      <img src="bear-guardian.png" alt="Bear Guardian" class="bear-guard"/>
+      <div class="vault-door">
+        <h2>Vault Status: Fortified 🛡️</h2>
+        <p>Vault Code: 589</p>
+      </div>
+    </div>
+
+    <section class="balances">
+      <div class="card gold">
+        <img src="assets/gold-coin.png" alt="Gold"/>
+        <h3>Gold Coins</h3>
+        <p id="gold-balance">4,567</p>
+      </div>
+      <div class="card flx">
+        <img src="assets/flx-token.png" alt="FLX"/>
+        <h3>FLX Tokens</h3>
+        <p id="flx-balance">1,234</p>
+      </div>
+    </section>
+
+    <section class="transactions">
+      <h3>Transaction Ledger</h3>
+      <ul id="tx-list">
+        <!-- JS populates here -->
+      </ul>
+    </section>
+
+    <footer class="actions">
+      <button onclick="deposit()">Deposit</button>
+      <button onclick="withdraw()">Withdraw</button>
+      <button onclick="stake()">Stake / Earn</button>
+      <button onclick="alert('Coming soon: Send FLX to bear589@perseverancia.vault')">Send</button>
+    </footer>
+  </div>
+
+  <script>
+    let balances = JSON.parse(localStorage.getItem('bearableVault')) || {
+      gold: 4567,
+      flx: 1234
+    };
+
+    let transactions = JSON.parse(localStorage.getItem('vaultTx')) || [
+      "+ 150 FLX - Level 12 Win - 2 min ago",
+      "- 20 FLX - Sent to KnightBuddy - 15 min ago",
+      "+ 50 FLX - Daily Vault Interest - Yesterday"
+    ];
+
+    function saveData() {
+      localStorage.setItem('bearableVault', JSON.stringify(balances));
+      localStorage.setItem('vaultTx', JSON.stringify(transactions));
+    }
+
+    function updateUI() {
+      document.getElementById('gold-balance').textContent = balances.gold.toLocaleString();
+      document.getElementById('flx-balance').textContent = balances.flx.toLocaleString();
+      const total = (balances.flx * 0.477 + balances.gold * 0.01).toFixed(2);
+      document.getElementById('total-value').textContent = `$${total}`;
+
+      const list = document.getElementById('tx-list');
+      list.innerHTML = '';
+      transactions.forEach(tx => {
+        const li = document.createElement('li');
+        li.textContent = tx;
+        list.appendChild(li);
+      });
+    }
+
+    function addTx(text) {
+      transactions.unshift(text + ` - Just now`);
+      if (transactions.length > 10) transactions.pop();
+      saveData();
+      updateUI();
+    }
+
+    function deposit() {
+      balances.flx += 100;
+      addTx("+ 100 FLX - Deposit from Game");
+    }
+
+    function withdraw() {
+      if (balances.flx >= 50) {
+        balances.flx -= 50;
+        addTx("- 50 FLX - Withdraw");
+      } else {
+        alert("Vault insufficient! Earn more in the Bearable Match-3 realms.");
+      }
+    }
+
+    function stake() {
+      alert("Staking 500 FLX in Vault 589... Mock reward: +5% tomorrow! (Feature in dev)");
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEETstuff</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: system-ui, sans-serif;
+      cursor: pointer;
+    }
+
+    a {
+      display: block;
+      width: 100%;
+      height: 100vh;
+      text-decoration: none;
+      position: relative;
+    }
+
+    video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    a:hover video {
+      transform: scale(1.03);
+    }
+
+    a:active video {
+      transform: scale(0.98);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, transparent 30%, rgba(0,0,0,0.75) 80%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      z-index: 5;
+      pointer-events: none;
+      text-align: center;
+      padding: 0 1rem;
+    }
+
+    .title {
+      font-size: clamp(4rem, 14vw, 14rem);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      text-shadow: 0 0 80px rgba(100,200,255,0.5),
+                   0 0 160px rgba(0,120,255,0.3);
+      opacity: 0.9;
+      animation: pulse 8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.88; transform: scale(1);   }
+      50%      { opacity: 1.00; transform: scale(1.02); }
+    }
+
+    .subtitle {
+      margin-top: 1.5rem;
+      font-size: clamp(1.2rem, 5vw, 2.2rem);
+      color: #88ccff;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 300;
+      opacity: 0.85;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 8vh;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.45);
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      pointer-events: none;
+      animation: fadeHint 10s forwards 5s;
+    }
+
+    @keyframes fadeHint {
+      to { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="index_backup.html">
+    <video autoplay loop muted playsinline>
+      <source src="cloudNEET.mp4" type="video/mp4">
+      <img src="https://images.unsplash.com/photo-1557683316-973673baf926?w=1920" alt="fallback">
+    </video>
+
+    <div class="overlay"></div>
+
+    <div class="content">
+      <img src="logo2.png" alt="NEETstuff" style="max-width: 80vw; animation: pulse 8s ease-in-out infinite;">
+      <div class="subtitle">click to enter</div>
+    </div>
+
+    <div class="hint">CLICK ANYWHERE</div>
+  </a>
+
+</body>
+</html>

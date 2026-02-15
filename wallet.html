@@ -1,0 +1,557 @@
+<!-- 
+    ============================================
+    OPTIMIZATION SWEEP 2 - KEY CHANGES:
+    - Added prefers-reduced-motion support
+    - Added lazy loading to background video
+    - Added clamp() fluid typography
+    - Enhanced meta tags for mobile
+    - Added theme-color
+    ============================================
+-->
+<!-- NEETstuff Wallet v1.1 – Xaman deep integration added -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0F0F0F"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <title>NEETstuff Wallet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0F0F0F;
+      --card: #1A1A1A;
+      --accent: #00FFAA;
+      --text: #FFFFFF;
+      --text-muted: #888888;
+      
+      --font-xs: clamp(0.75rem, 2vw, 0.875rem);
+      --font-sm: clamp(0.875rem, 2.5vw, 1rem);
+      --font-md: clamp(1rem, 3vw, 1.25rem);
+      --font-lg: clamp(1.25rem, 4vw, 1.5rem);
+      --font-xl: clamp(1.5rem, 5vw, 2rem);
+      --font-2xl: clamp(2rem, 8vw, 3rem);
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 15, 15, 0.85);
+      z-index: -1;
+    }
+    .video-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0, 255, 170, 0.15), 0 0 40px rgba(0, 255, 170, 0.05);
+      border: 1px solid rgba(0, 255, 170, 0.1);
+    }
+    .btn {
+      min-height: 52px;
+      min-width: 52px;
+      border-radius: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      transform: scale(1.02);
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .accent { color: var(--accent); }
+    .toggle-switch {
+      position: relative;
+      width: clamp(160px, 50vw, 180px);
+      height: 44px;
+      background: var(--card);
+      border-radius: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+    }
+    .toggle-switch .toggle-thumb {
+      position: absolute;
+      width: 86px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 18px;
+      transition: transform 0.3s ease;
+      transform: translateX(0);
+    }
+    .toggle-switch.web3 .toggle-thumb { transform: translateX(90px); }
+    .toggle-switch .toggle-label {
+      flex: 1;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      z-index: 1;
+      transition: color 0.3s ease;
+    }
+    .toggle-switch .toggle-label.active { color: #0F0F0F; }
+    .toggle-switch .toggle-label:not(.active) { color: var(--text-muted); }
+    .balance-animate { transition: all 0.4s ease; }
+    .nft-scroll {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .nft-scroll::-webkit-scrollbar { display: none; }
+    .nft-item {
+      min-width: 80px;
+      height: 80px;
+      background: var(--card);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease forwards; }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 170, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(0, 255, 170, 0.5); }
+    }
+    .xaman-btn { animation: pulse-glow 2s ease-in-out infinite; }
+    
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .xaman-btn { animation: none; }
+    }
+    
+    @media (max-width: 480px) {
+      .card { padding: 1rem; }
+      .toggle-switch { width: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <video autoplay loop muted playsinline class="video-bg" loading="lazy">
+    <source src="assets/chromesnek.mp4" type="video/mp4">
+  </video>
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-6 py-4">
+    <a href="index_backup.html" class="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center hover:bg-[#252525] transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </a>
+    <a href="index.html">
+      <img src="assets/logo47.png" alt="NEETstuff" style="height: 40px; display: block;">
+    </a>
+    <div class="flex items-center gap-2">
+      <button id="logoutBtn" class="hidden w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center hover:bg-[#252525] transition" title="Log out">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+        </svg>
+      </button>
+      <button id="profileBtn" class="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Login Bar -->
+  <div id="loginBar" class="hidden px-6 py-8">
+    <div id="normieLogin">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold mb-2">Welcome to NEETstuff</h2>
+        <p class="text-[#888888]">Sign in to access your wallet</p>
+      </div>
+      <div class="flex flex-col gap-4 max-w-sm mx-auto">
+        <button class="btn bg-[#1A1A1A] hover:bg-[#252525] flex items-center justify-center gap-3">
+          <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <button class="btn bg-[#1A1A1A] hover:bg-[#252525] flex items-center justify-center gap-3">
+          <svg class="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Continue with Facebook
+        </button>
+        <button class="btn bg-[#00FFAA] text-black hover:bg-[#00E699] flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          Continue with Email
+        </button>
+        <div class="relative py-2">
+          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-[#252525]"></div></div>
+          <div class="relative flex justify-center text-xs"><span class="bg-[#0F0F0F] px-3 text-[#888888]">OR</span></div>
+        </div>
+        <button class="btn bg-[#252525] hover:bg-[#303030] flex items-center justify-center gap-3">
+          <svg class="w-5 h-5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#00FFAA"/><path d="M8 12L11 15L16 9" stroke="#0F0F0F" stroke-width="2" fill="none"/></svg>
+          Connect Xaman Wallet
+        </button>
+      </div>
+      <p class="text-center mt-6">
+        <button id="switchToWeb3Login" class="text-[#00FFAA] text-sm hover:underline">Switch to Web3 Login →</button>
+      </p>
+    </div>
+
+    <div id="web3Login" class="hidden">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold mb-2">Web3 Wallet</h2>
+        <p class="text-[#888888]">Connect your crypto wallet</p>
+      </div>
+      <div class="flex flex-col gap-4 max-w-sm mx-auto">
+        <button class="btn bg-[#252525] hover:bg-[#303030] flex items-center justify-center gap-3">
+          <svg class="w-5 h-5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#00FFAA"/><path d="M8 12L11 15L16 9" stroke="#0F0F0F" stroke-width="2" fill="none"/></svg>
+          Connect Xaman Wallet
+        </button>
+        <button class="btn bg-[#252525] hover:bg-[#303030] flex items-center justify-center gap-3">
+          <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M21.18 8.02c-1.18-1.45-3.18-1.7-5.12-.64l-1.28.64 1.42 1.42c.36-.24.72-.48 1.14-.66l-.68-1.16zM13.92 5.38c-1.44.06-2.76.72-3.66 1.78l1.66.96 1.14-1.14-.14-1.6zM2.82 11.96c.14.86.62 1.62 1.34 2.1l9.98 5.76c.44.26 1.08.12 1.42-.3l2.48-3.06-4.72-2.74-4.5 2.6c-.38.22-.88.16-1.2-.14L2.82 11.96z" fill="#00FFAA"/></svg>
+          Connect Metamask
+        </button>
+        <button class="btn bg-[#252525] hover:bg-[#303030] flex items-center justify-center gap-3">
+          <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#00FFAA" stroke-width="2" fill="none"/></svg>
+          Connect Phantom
+        </button>
+      </div>
+      <p class="text-center mt-6">
+        <button id="switchToNormieLogin" class="text-[#00FFAA] text-sm hover:underline">← Switch to Social Login</button>
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Wallet Content -->
+  <main id="walletContent" class="hidden px-6">
+    <div class="flex justify-center mb-8">
+      <div id="modeToggle" class="toggle-switch">
+        <div class="toggle-thumb"></div>
+        <span class="toggle-label active">Normie Mode</span>
+        <span class="toggle-label">Web3 Mode</span>
+      </div>
+    </div>
+
+    <!-- Normie Mode -->
+    <div id="normieMode" class="fade-in">
+      <div class="card mb-6">
+        <p class="text-[#888888] text-sm mb-1">FLX Balance</p>
+        <p class="text-5xl font-bold balance-animate" id="flxBalance">12,450</p>
+        <a href="#" class="inline-flex items-center gap-2 text-[#00FFAA] text-sm mt-3 hover:underline">
+          Earn more by playing →
+        </a>
+      </div>
+
+      <div class="card mb-6">
+        <h3 class="text-lg font-semibold mb-4">Recent Transfers</h3>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between py-2 border-b border-[#252525]">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#252525] flex items-center justify-center text-green-400">↓</div>
+              <div><p class="font-medium">Received</p><p class="text-xs text-[#888888]">Feb 12, 2026</p></div>
+            </div>
+            <p class="text-green-400 font-semibold">+500 FLX</p>
+          </div>
+          <div class="flex items-center justify-between py-2 border-b border-[#252525]">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#252525] flex items-center justify-center text-red-400">↑</div>
+              <div><p class="font-medium">Sent</p><p class="text-xs text-[#888888]">Feb 10, 2026</p></div>
+            </div>
+            <p class="text-red-400 font-semibold">-1,200 FLX</p>
+          </div>
+          <div class="flex items-center justify-between py-2 border-b border-[#252525]">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#252525] flex items-center justify-center text-green-400">↓</div>
+              <div><p class="font-medium">Game Reward</p><p class="text-xs text-[#888888]">Feb 8, 2026</p></div>
+            </div>
+            <p class="text-green-400 font-semibold">+2,500 FLX</p>
+          </div>
+          <div class="flex items-center justify-between py-2">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#252525] flex items-center justify-center text-red-400">↑</div>
+              <div><p class="font-medium">Cashout</p><p class="text-xs text-[#888888]">Feb 5, 2026</p></div>
+            </div>
+            <p class="text-red-400 font-semibold">-5,000 FLX</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-6">
+        <h3 class="text-lg font-semibold mb-4">Redeem Gift Cards</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <button class="btn bg-[#252525] hover:bg-[#303030] py-4"><span class="text-2xl block mb-1">$5</span><span class="text-xs text-[#888888]">PayPal</span></button>
+          <button class="btn bg-[#252525] hover:bg-[#303030] py-4"><span class="text-2xl block mb-1">$10</span><span class="text-xs text-[#888888]">PayPal</span></button>
+          <button class="btn bg-[#252525] hover:bg-[#303030] py-4"><span class="text-2xl block mb-1">$20</span><span class="text-xs text-[#888888]">PayPal</span></button>
+          <button class="btn bg-[#252525] hover:bg-[#303030] py-4"><span class="text-2xl block mb-1">$50</span><span class="text-xs text-[#888888]">PayPal</span></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="text-[#888888] text-sm mb-2">Your Unique ID</p>
+        <div class="flex items-center justify-between">
+          <span class="text-xl font-mono" id="uniqueId">neet-8f3k9x2p</span>
+          <button id="copyIdBtn" class="btn bg-[#252525] hover:bg-[#303030] px-4 text-sm">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Web3 Mode -->
+    <div id="web3Mode" class="hidden fade-in">
+      <div class="text-center mb-4">
+        <span class="inline-block px-3 py-1 bg-[#252525] rounded-full text-xs text-[#888888]">(Coming in full web3 release)</span>
+      </div>
+
+      <!-- Xaman Deep Integration -->
+      <div id="xamanConnectSection" class="card mb-6 xaman-btn" style="border: 2px solid #00FFAA; cursor: pointer;">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full bg-[#00FFAA] flex items-center justify-center">
+              <svg class="w-8 h-8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0F0F0F"/><path d="M8 12L11 15L16 9" stroke="#00FFAA" stroke-width="2" fill="none"/></svg>
+            </div>
+            <div>
+              <p class="text-xl font-bold" id="xamanBtnText">Connect with Xaman</p>
+              <p class="text-sm text-[#888888]" id="xamanBtnSubtext">Instant XRPL wallet – no seed phrases</p>
+            </div>
+          </div>
+          <svg class="w-6 h-6 text-[#00FFAA]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+        <div id="xamanConnected" class="hidden mt-4 pt-4 border-t border-[#252525]">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-green-400 font-semibold">✓ Xaman Connected</p>
+              <p class="text-sm text-[#888888] font-mono" id="xamanAddress">r...abc123</p>
+            </div>
+            <button id="disconnectXaman" class="text-red-400 text-sm hover:underline">Disconnect</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-6">
+        <p class="text-[#888888] text-sm mb-1">VLT Balance</p>
+        <p class="text-5xl font-bold balance-animate" id="vltBalance">1,250</p>
+        <p class="text-xs text-[#888888] mt-2">~7,776 total supply</p>
+      </div>
+
+      <div class="card mb-6">
+        <h3 class="text-lg font-semibold mb-4">FLX → VLT Conversion</h3>
+        <div class="flex gap-3">
+          <input type="number" placeholder="Amount" class="flex-1 bg-[#252525] border-none rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-[#00FFAA]">
+          <button class="btn bg-[#00FFAA] text-black hover:bg-[#00E699] px-6">Convert</button>
+        </div>
+      </div>
+
+      <div class="card mb-6">
+        <h3 class="text-lg font-semibold mb-2">Stake VLT</h3>
+        <p class="text-[#888888] text-sm mb-4">Earn 20–40% APY</p>
+        <button class="btn bg-[#00FFAA] text-black hover:bg-[#00E699] w-full">Stake Now</button>
+      </div>
+
+      <div class="card mb-6">
+        <h3 class="text-lg font-semibold mb-4">Recent Transactions</h3>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between py-2 border-b border-[#252525]">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#252525] flex items-center justify-center text-[#00FFAA]">⇄</div>
+              <div><p class="font-medium">Converted</p><p class="text-xs text-[#888888]">Feb 12, 2026</p></div>
+            </div>
+            <p class="text-[#00FFAA] font-semibold">500 FLX → 50 VLT</p>
+          </div>
+          <div class="flex items-center justify-between py-2 border-b border-[#252525]">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#252525] flex items-center justify-center text-[#00FFAA]">↑</div>
+              <div><p class="font-medium">Staked</p><p class="text-xs text-[#888888]">Feb 10, 2026</p></div>
+            </div>
+            <p class="text-[#00FFAA] font-semibold">+100 VLT</p>
+          </div>
+          <div class="flex items-center justify-between py-2">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#252525] flex items-center justify-center text-[#00FFAA]">↓</div>
+              <div><p class="font-medium">Minted</p><p class="text-xs text-[#888888]">Feb 8, 2026</p></div>
+            </div>
+            <p class="text-[#00FFAA] font-semibold">+5 VLT</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-6">
+        <h3 class="text-lg font-semibold mb-4">My NFTs</h3>
+        <div class="nft-scroll">
+          <div class="nft-item"><span class="text-2xl">🎮</span></div>
+          <div class="nft-item"><span class="text-2xl">🐻</span></div>
+          <div class="nft-item"><span class="text-2xl">💎</span></div>
+          <div class="nft-item"><span class="text-2xl">🔥</span></div>
+          <div class="nft-item"><span class="text-2xl">🚀</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <a href="https://xrpl.org" target="_blank" class="flex items-center justify-between hover:text-[#00FFAA] transition-colors">
+          <span class="font-semibold">View on XRPL</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center text-xs text-[#888888] mt-12 px-6">
+    <p>Powered by Supabase • XRPL coming soon</p>
+  </footer>
+
+  <script>
+    let isLoggedIn = localStorage.getItem('neetstuff_loggedIn') === 'true';
+    let isWeb3Mode = false;
+    let uniqueId = localStorage.getItem('neetstuff_uniqueId') || 'neet-' + Math.random().toString(36).substr(2, 9);
+    let xamanConnected = localStorage.getItem('xaman_connected') === 'true';
+    let xamanAddress = localStorage.getItem('xaman_address') || '';
+
+    const loginBar = document.getElementById('loginBar');
+    const walletContent = document.getElementById('walletContent');
+    const profileBtn = document.getElementById('profileBtn');
+    const modeToggle = document.getElementById('modeToggle');
+    const normieMode = document.getElementById('normieMode');
+    const web3Mode = document.getElementById('web3Mode');
+    const uniqueIdEl = document.getElementById('uniqueId');
+    const copyIdBtn = document.getElementById('copyIdBtn');
+    const normieLogin = document.getElementById('normieLogin');
+    const web3Login = document.getElementById('web3Login');
+    const switchToWeb3Login = document.getElementById('switchToWeb3Login');
+    const switchToNormieLogin = document.getElementById('switchToNormieLogin');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const xamanConnectSection = document.getElementById('xamanConnectSection');
+    const xamanBtnText = document.getElementById('xamanBtnText');
+    const xamanBtnSubtext = document.getElementById('xamanBtnSubtext');
+    const xamanConnectedDiv = document.getElementById('xamanConnected');
+    const xamanAddressEl = document.getElementById('xamanAddress');
+    const disconnectXamanBtn = document.getElementById('disconnectXaman');
+
+    function init() {
+      localStorage.setItem('neetstuff_uniqueId', uniqueId);
+      uniqueIdEl.textContent = uniqueId;
+      updateXamanUI();
+      if (isLoggedIn) showWallet(); else showLogin();
+    }
+
+    function updateXamanUI() {
+      if (xamanConnected) {
+        xamanBtnText.textContent = 'Xaman Connected ✓';
+        xamanBtnSubtext.textContent = xamanAddress;
+        xamanConnectedDiv.classList.remove('hidden');
+        xamanConnectSection.style.animation = 'none';
+      } else {
+        xamanBtnText.textContent = 'Connect with Xaman';
+        xamanBtnSubtext.textContent = 'Instant XRPL wallet – no seed phrases';
+        xamanConnectedDiv.classList.add('hidden');
+        xamanConnectSection.style.animation = 'pulse-glow 2s ease-in-out infinite';
+      }
+    }
+
+    function showLogin() {
+      loginBar.classList.remove('hidden');
+      walletContent.classList.add('hidden');
+      logoutBtn?.classList.add('hidden');
+    }
+
+    function showWallet() {
+      loginBar.classList.add('hidden');
+      walletContent.classList.remove('hidden');
+      logoutBtn?.classList.remove('hidden');
+    }
+
+    function connectXaman() {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+      window.location.href = 'xaman://xrpl';
+      setTimeout(() => {
+        if (!document.hidden) {
+          if (isIOS) window.location.href = 'https://apps.apple.com/app/xaman-formerly-xrpl-tool/id1585472049';
+          else window.location.href = 'https://play.google.com/store/apps/details?id=com.xamanapp';
+        }
+      }, 2000);
+      setTimeout(() => { if (!xamanConnected) mockXamanConnection(); }, 3000);
+    }
+
+    function mockXamanConnection() {
+      xamanConnected = true;
+      xamanAddress = 'r' + Math.random().toString(36).substr(2, 25);
+      localStorage.setItem('xaman_connected', 'true');
+      localStorage.setItem('xaman_address', xamanAddress);
+      updateXamanUI();
+    }
+
+    function disconnectXaman() {
+      xamanConnected = false;
+      xamanAddress = '';
+      localStorage.removeItem('xaman_connected');
+      localStorage.removeItem('xaman_address');
+      updateXamanUI();
+    }
+
+    document.querySelectorAll('#loginBar button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        isLoggedIn = true;
+        localStorage.setItem('neetstuff_loggedIn', 'true');
+        showWallet();
+      });
+    });
+
+    profileBtn.addEventListener('click', () => {
+      if (isLoggedIn) alert(`Your Unique ID: ${uniqueId}`);
+      else showLogin();
+    });
+
+    switchToWeb3Login?.addEventListener('click', () => { normieLogin.classList.add('hidden'); web3Login.classList.remove('hidden'); });
+    switchToNormieLogin?.addEventListener('click', () => { web3Login.classList.add('hidden'); normieLogin.classList.remove('hidden'); });
+    logoutBtn?.addEventListener('click', () => { isLoggedIn = false; localStorage.removeItem('neetstuff_loggedIn'); showLogin(); });
+    xamanConnectSection?.addEventListener('click', () => { if (!xamanConnected) connectXaman(); });
+    disconnectXamanBtn?.addEventListener('click', (e) => { e.stopPropagation(); disconnectXaman(); });
+
+    modeToggle.addEventListener('click', () => {
+      isWeb3Mode = !isWeb3Mode;
+      modeToggle.classList.toggle('web3', isWeb3Mode);
+      modeToggle.querySelectorAll('.toggle-label').forEach((label, i) => { label.classList.toggle('active', isWeb3Mode ? i === 1 : i === 0); });
+      if (isWeb3Mode) { normieMode.classList.add('hidden'); web3Mode.classList.remove('hidden'); }
+      else { normieMode.classList.remove('hidden'); web3Mode.classList.add('hidden'); }
+    });
+
+    copyIdBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(uniqueId).then(() => {
+        copyIdBtn.textContent = 'Copied!';
+        setTimeout(() => copyIdBtn.textContent = 'Copy', 2000);
+      });
+    });
+
+    init();
+  </script>
+</body>
+</html>

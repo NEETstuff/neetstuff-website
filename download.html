@@ -1,0 +1,395 @@
+<!-- 
+    ============================================
+    OPTIMIZATION SWEEP 2 - KEY CHANGES:
+    - Added prefers-reduced-motion support
+    - Added lazy loading to gameplay images
+    - Added clamp() fluid typography
+    - Enhanced touch targets to 52px
+    - Added proper meta tags
+    ============================================
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0d0a0a"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <title>NEETstuff Labs - Download APK</title>
+  
+  <style>
+    :root {
+      --gold: #c9a74e;
+      --gold-light: #ffd700;
+      --amber: #b8860b;
+      --amber-dark: #8b0000;
+      --text: #e0d4a0;
+      --text-dark: #b0a080;
+      --bg-dark: #0d0a0a;
+      --bg-medium: #1a120f;
+      
+      --space-xs: 0.5rem;
+      --space-sm: 1rem;
+      --space-md: 1.5rem;
+      --space-lg: 2rem;
+      --space-xl: 3rem;
+      
+      --font-xs: clamp(0.75rem, 2vw, 0.875rem);
+      --font-sm: clamp(0.875rem, 2.5vw, 1rem);
+      --font-md: clamp(1rem, 3vw, 1.25rem);
+      --font-lg: clamp(1.25rem, 4vw, 1.5rem);
+      --font-xl: clamp(1.5rem, 5vw, 2rem);
+      --font-2xl: clamp(2rem, 7vw, 3rem);
+      
+      --btn-min-height: clamp(48px, 8vw, 52px);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text);
+      background-image: url("assets/Map_1.png"), linear-gradient(to bottom, var(--bg-medium), var(--bg-dark));
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    .back-button {
+      position: fixed;
+      top: var(--space-sm);
+      left: var(--space-sm);
+      z-index: 1000;
+      color: var(--gold);
+      text-decoration: none;
+      font-size: var(--font-sm);
+      padding: var(--space-xs) var(--space-sm);
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid var(--amber);
+      border-radius: 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+    }
+
+    .back-button:hover {
+      background: var(--amber);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: var(--space-sm);
+    }
+
+    .hero {
+      text-align: center;
+      padding: var(--space-xl) 0;
+    }
+
+    .hero h1 {
+      font-size: var(--font-2xl);
+      color: var(--gold-light);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      margin-bottom: var(--space-sm);
+    }
+
+    .hero-subtitle {
+      font-size: var(--font-lg);
+      color: var(--gold);
+      margin-bottom: var(--space-md);
+    }
+
+    .gameplay-images {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      align-items: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .gameplay-images img {
+      height: 300px;
+      border-radius: 12px;
+      loading: lazy;
+    }
+
+    .gameplay-images img.center {
+      height: 360px;
+    }
+
+    .header-video {
+      width: 100%;
+      max-width: 700px;
+      height: auto;
+      border-radius: 16px;
+      margin: var(--space-md) auto;
+      display: block;
+      box-shadow: 0 0 30px rgba(201, 167, 78, 0.3);
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-dark) 100%);
+      border: 3px solid var(--amber);
+      border-radius: 16px;
+      padding: var(--space-lg);
+      margin: var(--space-lg) 0;
+      text-align: center;
+    }
+
+    .info-box h2 {
+      color: var(--gold-light);
+      font-size: var(--font-xl);
+      margin-bottom: var(--space-md);
+    }
+
+    .info-box p {
+      font-size: var(--font-md);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .cta-bar {
+      text-align: center;
+      padding: var(--space-xl) 0;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(180deg, var(--gold-light) 0%, var(--amber) 100%);
+      color: var(--bg-dark);
+      font-size: var(--font-lg);
+      font-weight: bold;
+      padding: var(--space-md) var(--space-xl);
+      border-radius: 50px;
+      text-decoration: none;
+      min-height: var(--btn-min-height);
+      min-width: 280px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(201, 167, 78, 0.4);
+    }
+
+    .cta-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 30px rgba(201, 167, 78, 0.6);
+    }
+
+    .tokenomics-section {
+      background: var(--bg-medium);
+      border: 2px solid var(--gold);
+      border-radius: 16px;
+      padding: var(--space-lg);
+      margin: var(--space-lg) 0;
+    }
+
+    .tokenomics-section h2 {
+      color: var(--gold-light);
+      font-size: var(--font-lg);
+      text-align: center;
+      margin-bottom: var(--space-md);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--space-md) 0;
+    }
+
+    th, td {
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      border-bottom: 1px solid var(--amber);
+    }
+
+    th {
+      background: var(--bg-dark);
+      color: var(--gold-light);
+      font-size: var(--font-sm);
+    }
+
+    td {
+      font-size: var(--font-sm);
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: var(--space-md) 0;
+    }
+
+    .feature-list li {
+      padding: var(--space-sm) 0;
+      font-size: var(--font-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .feature-list li::before {
+      content: "🔐";
+    }
+
+    .video-overlay {
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .video-overlay video {
+      width: calc(100% - 220px);
+      margin-left: 65px;
+      margin-right: 15px;
+      margin-bottom: -10px;
+      border-radius: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .video-overlay video {
+        width: calc(100% - 60px);
+        margin-left: 30px;
+        margin-right: 0;
+      }
+      .video-overlay img {
+        max-width: 90vw;
+      }
+    }
+
+    .video-overlay img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(calc(-50% - 8px), -50%);
+      width: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    footer {
+      text-align: center;
+      padding: var(--space-lg);
+      color: var(--text-dark);
+      font-size: var(--font-xs);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .gameplay-images {
+        flex-direction: column;
+      }
+      .gameplay-images img,
+      .gameplay-images img.center {
+        height: auto;
+        width: 100%;
+        max-width: 300px;
+      }
+      .cta-button {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="index_backup.html" class="back-button">← Back</a>
+
+  <div class="container">
+    <section class="hero">
+      <h1>Bearable Vault 589</h1>
+      <p class="hero-subtitle">Your Assets. Your Yield. Your Rules.</p>
+      <p style="max-width: 600px; margin: 1rem auto; font-size: var(--font-sm); opacity: 0.9;">
+        Stake VLT • Earn real XRP micro-payouts • Backed by physical vault assets • FLX → VLT bridge coming soon
+      </p>
+      <div class="gameplay-images">
+        <img src="assets/Gameplay2.png" alt="Gameplay 2" loading="lazy">
+        <img src="assets/Gameplay1.png" alt="Gameplay 1" class="center" loading="lazy">
+        <img src="assets/Gameplay4.png" alt="Gameplay 4" loading="lazy">
+      </div>
+    </section>
+
+    <div class="video-overlay">
+      <video autoplay loop muted playsinline>
+        <source src="assets/bearablevault.mp4" type="video/mp4" />
+      </video>
+      <img src="assets/vault.png" alt="Vault Border">
+    </div>
+
+    <section class="info-box">
+      <h2>🏦 Vault Economy</h2>
+      <p>Stake VLT tokens and earn real XRP micro-payouts daily. Backed by physical vault assets. The FLX → VLT bridge is coming soon.</p>
+    </section>
+
+    <div class="tokenomics-section">
+      <h2>💰 Tokenomics</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Supply</th>
+            <th>Utility</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>FLX</strong></td>
+            <td>∞ (infinite)</td>
+            <td>Game rewards, play-to-earn</td>
+          </tr>
+          <tr>
+            <td><strong>VLT</strong></td>
+            <td>~7,776</td>
+            <td>Staking, governance</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <section class="info-box">
+      <h2>⚡ Key Features</h2>
+      <ul class="feature-list">
+        <li>~7,776 VLT total supply (fixed)</li>
+        <li>5% burn on every transfer</li>
+        <li>20-40% APY staking rewards</li>
+        <li>Daily XRP micro-payouts</li>
+        <li>Backed by physical vault assets</li>
+        <li>Xaman wallet integration</li>
+      </ul>
+    </section>
+
+    <section class="cta-bar">
+      <a href="#" class="cta-button">Download APK</a>
+    </section>
+
+    <footer>
+      <p>© 2026 NEETstuff Labs | Powered by XRPL</p>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!-- 
+    ============================================
+    OPTIMIZATION SWEEP 2 - KEY CHANGES:
+    - Added prefers-reduced-motion support
+    - Added clamp() fluid typography
+    - Added proper mobile meta tags
+    - Added theme-color for mobile browsers
+    - Enhanced touch targets to 52px
+    ============================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#000000"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <title>Idol Hands – NEET.0 Ware</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --white: #FFFFFF;
+      --black: #000000;
+      --red: #FF0000;
+      --dark: #0A0A0A;
+      
+      --space-xs: 0.5rem;
+      --space-sm: 1rem;
+      --space-md: 1.5rem;
+      --space-lg: 2rem;
+      --space-xl: 3rem;
+      
+      --font-xs: clamp(0.75rem, 2vw, 0.875rem);
+      --font-sm: clamp(0.875rem, 2.5vw, 1rem);
+      --font-md: clamp(1rem, 3vw, 1.25rem);
+      --font-lg: clamp(1.25rem, 4vw, 1.5rem);
+      --font-xl: clamp(1.5rem, 5vw, 2rem);
+      --font-2xl: clamp(2rem, 7vw, 3rem);
+      
+      --btn-min-height: clamp(48px, 8vw, 52px);
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: var(--font-sm);
+      line-height: 1.5;
+      overflow-x: hidden;
+      background-image: 
+        url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+'),
+        linear-gradient(180deg, #0A0A0A 0%, #000000 100%);
+      background-size: 4px 4px, cover;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: var(--space-sm);
+      left: var(--space-sm);
+      z-index: 1000;
+      color: var(--red);
+      text-decoration: none;
+      font-size: var(--font-sm);
+      padding: var(--space-xs) var(--space-sm);
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid var(--red);
+      border-radius: 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+    }
+    .back-btn:hover {
+      background: var(--red);
+      color: var(--white);
+    }
+
+    .hero {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-xl) var(--space-sm);
+      position: relative;
+    }
+
+    .hero-video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 65%;
+      height: 65%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    .tv-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      max-width: 68vw;
+      aspect-ratio: 1 / 1;
+      z-index: 2;
+    }
+
+    .tv-frame-img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      max-width: 68vw;
+      z-index: 10;
+      pointer-events: none;
+      filter: drop-shadow(0 0 15px var(--red));
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 5;
+      margin-top: 50px;
+    }
+
+    .hero h1 {
+      font-size: var(--font-2xl);
+      margin-bottom: var(--space-md);
+      text-shadow: 2px 2px 0 var(--red), 0 0 20px var(--red);
+      color: var(--white);
+    }
+
+    .hero p {
+      font-size: var(--font-md);
+      max-width: 600px;
+      margin: 0 auto var(--space-lg);
+      opacity: 0.9;
+      text-shadow: 0 0 10px var(--red);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--btn-min-height);
+      min-width: 200px;
+      padding: var(--space-sm) var(--space-lg);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: var(--font-sm);
+      text-transform: uppercase;
+      text-decoration: none;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: var(--white);
+      box-shadow: 4px 4px 0 var(--white), 0 0 15px var(--red);
+    }
+
+    .btn-primary:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--white), 0 0 25px var(--red);
+    }
+
+    .btn-primary:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--white);
+    }
+
+    .section {
+      padding: var(--space-xl) var(--space-md);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section h2 {
+      font-size: var(--font-xl);
+      text-align: center;
+      margin-bottom: var(--space-lg);
+      color: var(--red);
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .game-card {
+      background: var(--dark);
+      border: 2px solid var(--white);
+      border-radius: 12px;
+      padding: var(--space-md);
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    }
+
+    .game-card:hover {
+      border-color: var(--red);
+      transform: scale(1.02);
+    }
+
+    .game-card h3 {
+      font-size: var(--font-md);
+      margin-bottom: var(--space-xs);
+    }
+
+    footer {
+      text-align: center;
+      padding: var(--space-lg);
+      color: var(--white);
+      opacity: 0.5;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: clamp(1.5rem, 10vw, 2.5rem);
+      }
+      .btn {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="index_backup.html" class="back-btn">← Back</a>
+
+  <section class="hero">
+    <div class="tv-frame">
+      <video class="hero-video" autoplay loop muted playsinline>
+        <source src="assets/neetomoney_circle.webm" type="video/webm">
+      </video>
+    </div>
+    <img src="assets/TV2.png" alt="" class="tv-frame-img" id="tv-surround">
+    <div class="hero-content">
+      <h1>Idol Hands</h1>
+      <p>NEET.0 Ware – 100 micro-games in sequence. How far can you make it?</p>
+      <a href="#" class="btn btn-primary">Play Now</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Mini-Games</h2>
+    <div class="games-grid">
+      <div class="game-card">
+        <h3>✋🧼 Hand Wash</h3>
+        <p>Scrub all 5 fingers before time runs out!</p>
+      </div>
+      <div class="game-card">
+        <h3>💪💪 Arm Wrestle</h3>
+        <p>Quick! Mash both buttons to win!</p>
+      </div>
+      <div class="game-card">
+        <h3>🕷️🕸️ Spider Run</h3>
+        <p>Dodge the web strands!</p>
+      </div>
+      <div class="game-card">
+        <h3>👻 Ghost Chase</h3>
+        <p>Run from the ghost!</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Features</h2>
+    <div class="games-grid">
+      <div class="game-card">
+        <h3>🎮 100 Micro-Games</h3>
+        <p>Warioware-style chaos. Every game is different.</p>
+      </div>
+      <div class="game-card">
+        <h3>⏱️ Speed Run</h3>
+        <p>Each game lasts 3-5 seconds. How far can you go?</p>
+      </div>
+      <div class="game-card">
+        <h3>🏆 High Scores</h3>
+        <p>Compete globally. Share your run.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 NEETstuff Labs</p>
+  </footer>
+
+  <script>
+    const tvImages = [
+      'assets/TV.png', 'assets/TV2.png', 'assets/TV3.png', 'assets/TV4.png',
+      'assets/TV5.png', 'assets/TV6.png', 'assets/TV7.png', 'assets/TV8.png',
+      'assets/TV9.png', 'assets/TV10.png', 'assets/TV11.png', 'assets/TV12.png', 'assets/TV13.png'
+    ];
+    const tvSurround = document.getElementById('tv-surround');
+    tvSurround.src = tvImages[Math.floor(Math.random() * tvImages.length)];
+  </script>
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#0B0E1A"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <title>FLX → VLT Tokenomics | Grind Off-Chain. Vault On-Chain.</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ============================================
+       CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+       ============================================ */
+    :root {
+      /* Neon cyberpunk palette - AMOLED optimized */
+      --cyan: #00FFFF;
+      --teal: #00FFAA;
+      --navy: #0A1F44;
+      --pink: #FF00AA;
+      --dark: #0B0E1A;
+      --glitch: #FF3366;
+      
+      /* Spacing scale (mobile-first) */
+      --space-xs: 0.5rem;
+      --space-sm: 1rem;
+      --space-md: 1.5rem;
+      --space-lg: 2rem;
+      --space-xl: 3rem;
+      
+      /* Typography scale */
+      --font-xs: 0.875rem;
+      --font-sm: 1rem;
+      --font-md: 1.25rem;
+      --font-lg: 1.5rem;
+      --font-xl: 2rem;
+      --font-2xl: 3rem;
+      
+      /* Touch-friendly sizing */
+      --btn-min-height: 3rem;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--dark);
+      color: var(--cyan);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: var(--font-sm);
+      line-height: 1.5;
+      overflow-x: hidden;
+      background-image: 
+        linear-gradient(180deg, rgba(10,31,68,0.92) 0%, rgba(11,14,26,0.95) 100%),
+        url('https://images.unsplash.com/photo-1553356084-58ef4a67b2a7?auto=format&fit=crop&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    /* Back Button */
+    .back-btn {
+      position: fixed;
+      top: var(--space-sm);
+      left: var(--space-sm);
+      z-index: 1000;
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: var(--font-sm);
+      font-weight: 600;
+      padding: var(--space-xs) var(--space-sm);
+      background: rgba(0,0,0,0.6);
+      border: 2px solid var(--cyan);
+      border-radius: 8px;
+      min-width: 48px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover, .back-btn:focus {
+      background: rgba(0,255,255,0.2);
+      box-shadow: 0 0 15px var(--cyan);
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      place-content: center;
+      padding: var(--space-xl) var(--space-sm);
+      padding-top: calc(var(--space-xl) + 60px);
+      text-align: center;
+      position: relative;
+      background: 
+        radial-gradient(ellipse at 50% 30%, rgba(0,255,255,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255,0,170,0.05) 0%, transparent 40%);
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .hero-img {
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      filter: drop-shadow(0 0 20px var(--cyan)) drop-shadow(0 0 40px var(--teal));
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .glitch {
+      position: relative;
+      color: var(--cyan);
+      font-size: var(--font-xl);
+      letter-spacing: 0.05em;
+      text-shadow: 0.05em 0 0 var(--glitch), -0.05em 0 0 var(--pink);
+      animation: glitch 3s infinite;
+    }
+
+    .glitch::before, .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.7;
+    }
+
+    .glitch::before {
+      left: 2px;
+      text-shadow: -2px 0 var(--pink);
+      clip: rect(0, 900px, 0, 0);
+      animation: glitch-anim 4s infinite;
+    }
+
+    .glitch::after {
+      left: -2px;
+      text-shadow: 2px 0 var(--cyan);
+      clip: rect(0, 900px, 0, 0);
+      animation: glitch-anim2 3.5s infinite;
+    }
+
+    @keyframes glitch {
+      0%, 90%, 100% { transform: translate(0); }
+      92% { transform: translate(-2px, 1px); }
+      94% { transform: translate(2px, -1px); }
+      96% { transform: translate(-1px, 2px); }
+      98% { transform: translate(1px, -2px); }
+    }
+
+    @keyframes glitch-anim {
+      0%, 100% { clip: rect(10px, 9999px, 30px, 0); }
+      25% { clip: rect(70px, 9999px, 90px, 0); }
+      50% { clip: rect(20px, 9999px, 60px, 0); }
+      75% { clip: rect(50px, 9999px, 80px, 0); }
+    }
+
+    @keyframes glitch-anim2 {
+      0%, 100% { clip: rect(40px, 9999px, 60px, 0); }
+      33% { clip: rect(10px, 9999px, 40px, 0); }
+      66% { clip: rect(80px, 9999px, 100px, 0); }
+    }
+
+    .hero-subtitle {
+      font-size: var(--font-md);
+      color: var(--teal);
+      text-shadow: 0 0 15px var(--teal);
+      margin: 0;
+    }
+
+    .hero-desc {
+      font-size: var(--font-sm);
+      line-height: 1.6;
+      opacity: 0.9;
+      margin: 0;
+      padding: 0 var(--space-sm);
+      max-width: 100%;
+    }
+
+    .cta-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      align-items: center;
+      width: 100%;
+    }
+
+    .cta-btn {
+      min-height: var(--btn-min-height);
+      min-width: 200px;
+      padding: var(--space-sm) var(--space-md);
+      background: transparent;
+      border: 2px solid var(--cyan);
+      color: var(--cyan);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: var(--font-sm);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-btn:hover, .cta-btn:focus {
+      background: var(--cyan);
+      color: var(--dark);
+      box-shadow: 0 0 25px var(--cyan);
+    }
+
+    .cta-btn.glow {
+      background: rgba(0,255,255,0.1);
+    }
+
+    .cta-btn.glow::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(transparent, rgba(0,255,255,0.2), transparent);
+      transform: translateY(-100%);
+      animation: scan 5s infinite;
+    }
+
+    @keyframes scan {
+      0% { transform: translateY(-100%); }
+      50%, 100% { transform: translateY(100%); }
+    }
+
+    /* Content Sections */
+    .section {
+      padding: var(--space-xl) var(--space-sm);
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .section--dark {
+      background: rgba(10,31,68,0.5);
+    }
+
+    .section--gradient {
+      background: linear-gradient(180deg, var(--navy) 0%, var(--dark) 100%);
+    }
+
+    .section-title {
+      font-size: var(--font-lg);
+      text-align: center;
+      margin-bottom: var(--space-md);
+    }
+
+    .section-desc {
+      font-size: var(--font-sm);
+      text-align: center;
+      max-width: 100%;
+      margin: 0 auto var(--space-lg);
+      line-height: 1.6;
+    }
+
+    /* Tokenomics Table */
+    .tokenomics-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: var(--space-md) 0;
+    }
+
+    .tokenomics-table {
+      width: 100%;
+      min-width: 550px;
+      border-collapse: collapse;
+      font-size: var(--font-xs);
+    }
+
+    .tokenomics-table th, .tokenomics-table td {
+      border: 1px solid var(--teal);
+      padding: var(--space-sm);
+      text-align: center;
+    }
+
+    .tokenomics-table th {
+      background: rgba(0,255,170,0.15);
+      font-family: 'Orbitron', sans-serif;
+      font-size: var(--font-xs);
+    }
+
+    .tokenomics-table td {
+      background: rgba(0,0,0,0.3);
+    }
+
+    .tokenomics-table td:first-child {
+      font-weight: 700;
+      color: var(--teal);
+    }
+
+    /* Feature List */
+    .feature-list {
+      list-style: none;
+      font-size: var(--font-sm);
+      line-height: 2;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .feature-list li {
+      padding: var(--space-xs) 0;
+      border-bottom: 1px solid rgba(0,255,170,0.2);
+    }
+
+    .feature-list strong {
+      color: var(--teal);
+    }
+
+    /* VLT Stats */
+    .vlt-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      max-width: 600px;
+      margin: var(--space-lg) auto;
+    }
+
+    .vlt-stat {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--cyan);
+      border-radius: 12px;
+      padding: var(--space-md);
+      text-align: center;
+    }
+
+    .vlt-stat-value {
+      font-size: var(--font-xl);
+      font-weight: 900;
+      color: var(--teal);
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .vlt-stat-label {
+      font-size: var(--font-xs);
+      opacity: 0.8;
+      margin-top: var(--space-xs);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: var(--space-lg) var(--space-sm);
+      background: rgba(0,0,0,0.7);
+      border-top: 2px solid var(--pink);
+      font-size: var(--font-xs);
+    }
+
+    /* Responsive: Tablet */
+    @media (min-width: 768px) {
+      :root {
+        --font-xl: 2.5rem;
+        --font-2xl: 3.5rem;
+      }
+
+      body { font-size: var(--font-md); }
+
+      .hero { padding: var(--space-xl); padding-top: calc(var(--space-xl) + 80px); }
+      .hero-img { max-width: 400px; }
+      .glitch { font-size: var(--font-xl); }
+      .hero-subtitle { font-size: var(--font-lg); }
+      .hero-desc { font-size: var(--font-md); max-width: 700px; }
+      .cta-group { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+      .section { padding: var(--space-xl); }
+      .section-title { font-size: var(--font-xl); }
+      .section-desc { font-size: var(--font-md); }
+      .tokenomics-table { font-size: var(--font-sm); }
+      .feature-list { font-size: var(--font-md); }
+      .vlt-stats { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    /* Responsive: Desktop */
+    @media (min-width: 1024px) {
+      :root { --font-xl: 3.5rem; --font-2xl: 4.5rem; }
+
+      .hero-img { max-width: 500px; filter: drop-shadow(0 0 30px var(--cyan)) drop-shadow(0 0 60px var(--teal)) drop-shadow(0 0 90px rgba(0,255,255,0.3)); }
+      .glitch { font-size: var(--font-xl); letter-spacing: 0.1em; }
+      .section { max-width: 1200px; padding: 5rem 2rem; }
+      .section-desc { max-width: 800px; }
+      .tokenomics-table { font-size: var(--font-md); }
+      .feature-list li { font-size: var(--font-lg); }
+    }
+
+    /* Reduce Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .hero-img { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Back Button -->
+  <a href="index_backup.html" class="back-btn" aria-label="Go back">← Back</a>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <!-- Hero Image - Vault/FLX themed -->
+      <img 
+        src="https://via.placeholder.com/600x400/0A1F44/00FFAA?text=VAULT+KEY" 
+        alt="FLX VLT Vault Key" 
+        class="hero-img"
+      />
+      
+      <!-- Glitch Title -->
+      <h1 class="glitch" data-text="FLX → VLT">FLX → VLT</h1>
+      
+      <!-- Subtitle -->
+      <p class="hero-subtitle">
+        Grind Now. Vault Later.
+      </p>
+      
+      <!-- Description -->
+      <p class="hero-desc">
+        Play-to-earn points today → real XRPL utility token tomorrow.<br>
+        Backed by physical vault assets. Deflationary. Stakable. Yours.
+      </p>
+      
+      <!-- CTA Buttons -->
+      <div class="cta-group">
+        <button class="cta-btn glow">Play Graded Crash (Free)</button>
+        <button class="cta-btn">Connect Xaman Wallet</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 1: The Bridge -->
+  <section class="section section--dark">
+    <h2 class="section-title" style="color: var(--teal);">The Seamless Bridge</h2>
+    <p class="section-desc">
+      <strong>FLX</strong> is the off-chain loyalty currency you earn right now in <em>Graded Crash</em> (rethemed Sweet Sugar).<br><br>
+      When we flip the web3 switch, every FLX converts to <strong>VLT</strong> (performance-weighted 1:1 or better).<br><br>
+      <span style="color: var(--teal);">Your grind becomes real on-chain value.</span>
+    </p>
+  </section>
+
+  <!-- SECTION 2: Two Tokens Comparison Table -->
+  <section class="section">
+    <h2 class="section-title">Two Tokens, One Economy</h2>
+    
+    <div class="tokenomics-table-wrapper">
+      <table class="tokenomics-table">
+        <thead>
+          <tr>
+            <th>Aspect</th>
+            <th>FLX (Off-Chain)</th>
+            <th>VLT (On-Chain)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Stage</td>
+            <td>Pre-web3</td>
+            <td>Live on XRPL</td>
+          </tr>
+          <tr>
+            <td>Supply</td>
+            <td>Dynamic (activity-based)</td>
+            <td>Dynamic (tied to vault TVL)</td>
+          </tr>
+          <tr>
+            <td>Earning</td>
+            <td>Gameplay, time, revenue, LB</td>
+            <td>Staking, holding NFTs, quests</td>
+          </tr>
+          <tr>
+            <td>Convertibility</td>
+            <td>→ VLT at web3 launch</td>
+            <td>Native</td>
+          </tr>
+          <tr>
+            <td>Backing</td>
+            <td>None (yet)</td>
+            <td>Symbolic TVL (non-redeemable)</td>
+          </tr>
+          <tr>
+            <td>Primary Use</td>
+            <td>Retention & progression</td>
+            <td>Governance, yields, liquidity</td>
+          </tr>
+          <tr>
+            <td>Burn/Scarcity</td>
+            <td>None yet</td>
+            <td>5% annual (fee-funded + activity)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECTION 3: VLT Deep Dive -->
+  <section class="section section--gradient">
+    <h2 class="section-title" style="color: var(--teal);">VLT Deep Dive</h2>
+    
+    <!-- VLT Stats -->
+    <div class="vlt-stats">
+      <div class="vlt-stat">
+        <div class="vlt-stat-value">~7,776</div>
+        <div class="vlt-stat-label">Starting VLT Supply<br>(250 oz silver)</div>
+      </div>
+      <div class="vlt-stat">
+        <div class="vlt-stat-value">5%</div>
+        <div class="vlt-stat-label">Annual Burn Target</div>
+      </div>
+      <div class="vlt-stat">
+        <div class="vlt-stat-value">50%</div>
+        <div class="vlt-stat-label">NFT Holders Distribution</div>
+      </div>
+      <div class="vlt-stat">
+        <div class="vlt-stat-value">20-40%</div>
+        <div class="vlt-stat-label">Target Staking APY</div>
+      </div>
+    </div>
+    
+    <ul class="feature-list">
+      <li>💎 <strong>New VLT minted ONLY</strong> when new audited assets enter the vault</li>
+      <li>🔥 <strong>5% annual burn</strong> target (10-20% of AMM fees + royalties auto-burn)</li>
+      <li>📊 <strong>Distribution</strong> on every new batch: 50% NFT holders • 30% Liquidity • 20% Treasury + 10% loyalty bonus to early holders</li>
+      <li>🗳️ <strong>Utility</strong>: Governance (with founder veto → full DAO)</li>
+      <li>📈 <strong>20-40% APY</strong> staking in VLT/XRP AMM</li>
+      <li>💰 <strong>50% of 0.3% fees</strong> to stakers</li>
+      <li>🛡️ <strong>NFT boosts & shields</strong> for enhanced rewards</li>
+    </ul>
+  </section>
+
+  <!-- SECTION 4: CTA -->
+  <section class="section section--dark">
+    <h2 class="section-title">Ready to Start Grinding?</h2>
+    <p class="section-desc">
+      Join the vault. Earn FLX now. Convert to VLT later.
+    </p>
+    
+    <div class="cta-group">
+      <button class="cta-btn glow">Play Graded Crash Now (Free)</button>
+      <button class="cta-btn">Connect Xaman Wallet</button>
+      <button class="cta-btn" style="border-color: var(--pink); color: var(--pink);">Join the Vault Waitlist</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>FLX → VLT | Built on XRPL | Backed by Real Assets</p>
+    <p style="margin-top: 0.5rem; opacity: 0.7;">For the Neglected Collector</p>
+  </footer>
+
+</body>
+</html>
