@@ -64,17 +64,17 @@
 
             @media (max-width: 768px) {
                 .rounded-video {
-                    width: 30vw;
-                    transform: translate(-50%, -50%);
+                    width: 66vw;
+                    transform: translate(-50%, calc(-50% - 4px));
                     top: 50%;
                     left: 50%;
                 }
                 .rounded-video img {
-                    width: 130px !important;
+                    width: 260px !important;
                 }
                 #tv-surround {
-                    width: 75px !important;
-                    max-width: 75px !important;
+                    width: 450px !important;
+                    max-width: 450px !important;
                 }
             }
 
@@ -535,7 +535,7 @@
             </div>
         </footer>
 
-        <div style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.6); border-radius: 16px; overflow: hidden;">
+        <div id="spotify-player" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.6); border-radius: 16px; overflow: hidden; transition: transform 0.3s ease;">
           <iframe 
             style="border-radius:12px;" 
             src="https://open.spotify.com/embed/album/3rQBUTIeAgTlytVmCwf1WL?utm_source=generator&theme=0" 
@@ -547,6 +547,14 @@
             loading="lazy">
           </iframe>
         </div>
+
+        <style>
+        @media (max-width: 768px) {
+          #spotify-player {
+            display: none;
+          }
+        }
+        </style>
       <script>
       const tvImages = [
         'assets/TV.png', 'assets/TV2.png', 'assets/TV3.png', 'assets/TV4.png',

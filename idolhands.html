@@ -119,7 +119,7 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translate(calc(-50% - 13px), calc(-50% + 13px));
       width: 65%;
       height: 65%;
       object-fit: cover;
@@ -152,22 +152,60 @@
     .hero-content {
       position: relative;
       z-index: 5;
-      margin-top: 50px;
+      margin-top: var(--space-lg);
     }
 
     .hero h1 {
       font-size: var(--font-2xl);
-      margin-bottom: var(--space-md);
+      margin-bottom: var(--space-sm);
       text-shadow: 2px 2px 0 var(--red), 0 0 20px var(--red);
-      color: var(--white);
     }
 
     .hero p {
       font-size: var(--font-md);
-      max-width: 600px;
+      max-width: 500px;
       margin: 0 auto var(--space-lg);
       opacity: 0.9;
-      text-shadow: 0 0 10px var(--red);
+    }
+
+    .section {
+      padding: var(--space-xl) var(--space-md);
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section h2 {
+      font-size: var(--font-xl);
+      text-align: center;
+      margin-bottom: var(--space-lg);
+      color: var(--red);
+      text-shadow: 0 0 15px var(--red);
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .game-card {
+      background: var(--dark);
+      border: 2px solid var(--white);
+      border-radius: 12px;
+      padding: var(--space-md);
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    }
+
+    .game-card:hover {
+      border-color: var(--red);
+      transform: scale(1.02);
+    }
+
+    .game-card h3 {
+      font-size: var(--font-md);
+      margin-bottom: var(--space-xs);
     }
 
     .btn {
@@ -199,71 +237,78 @@
       box-shadow: 6px 6px 0 var(--white), 0 0 25px var(--red);
     }
 
-    .btn-primary:active {
-      transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0 var(--white);
-    }
-
-    .section {
-      padding: var(--space-xl) var(--space-md);
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .section h2 {
-      font-size: var(--font-xl);
-      text-align: center;
-      margin-bottom: var(--space-lg);
-      color: var(--red);
-    }
-
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--space-md);
-    }
-
-    .game-card {
-      background: var(--dark);
-      border: 2px solid var(--white);
-      border-radius: 12px;
-      padding: var(--space-md);
-      text-align: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
-    }
-
-    .game-card:hover {
-      border-color: var(--red);
-      transform: scale(1.02);
-    }
-
-    .game-card h3 {
-      font-size: var(--font-md);
-      margin-bottom: var(--space-xs);
-    }
-
     footer {
       text-align: center;
       padding: var(--space-lg);
       color: var(--white);
       opacity: 0.5;
+      text-shadow: 0 0 10px var(--red);
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+    @media (max-width: 768px) {
+      .hero {
+        padding: 100px var(--space-sm) var(--space-lg);
+        min-height: auto;
+        display: block;
+        position: relative;
       }
-    }
-
-    @media (max-width: 480px) {
+      .hero-video {
+        position: absolute;
+        width: calc(60% + 12px);
+        height: auto;
+        aspect-ratio: 1 / 1;
+        top: 80px;
+        left: 50%;
+        transform: translateX(calc(-50% - 12px));
+      }
+      .tv-frame, .tv-frame-img {
+        position: absolute;
+        width: 90%;
+        max-width: 400px;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
       .hero h1 {
-        font-size: clamp(1.5rem, 10vw, 2.5rem);
+        font-size: clamp(1.5rem, 8vw, 2rem);
+        margin-bottom: var(--space-xs);
+        margin-top: 280px;
+      }
+      .hero p {
+        font-size: var(--font-sm);
+        margin-bottom: var(--space-md);
+        padding: 0 var(--space-sm);
+      }
+      .hero-content {
+        margin-top: var(--space-sm);
       }
       .btn {
-        min-width: 100%;
+        min-width: 180px;
+        padding: var(--space-sm) var(--space-md);
+      }
+      .back-btn {
+        top: 10px;
+        left: 10px;
+      }
+      .section {
+        padding: var(--space-lg) var(--space-sm);
+      }
+      .section h2 {
+        font-size: var(--font-lg);
+        margin-bottom: var(--space-md);
+      }
+      .games-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+      }
+      .game-card {
+        padding: var(--space-sm);
+      }
+      .game-card h3 {
+        font-size: var(--font-sm);
+      }
+      .game-card p {
+        font-size: var(--font-xs);
       }
     }
   </style>
@@ -277,7 +322,7 @@
         <source src="assets/neetomoney_circle.webm" type="video/webm">
       </video>
     </div>
-    <img src="assets/TV2.png" alt="" class="tv-frame-img" id="tv-surround">
+    <img src="assets/TV12.png" alt="" class="tv-frame-img" id="tv-surround">
     <div class="hero-content">
       <h1>Idol Hands</h1>
       <p>NEET.0 Ware – 100 micro-games in sequence. How far can you make it?</p>
