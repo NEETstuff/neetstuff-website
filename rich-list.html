@@ -257,7 +257,7 @@
             box-shadow: none;
         }
 
-        .qr-btn, .clear-btn {
+        .clear-btn {
             background: rgba(0, 255, 255, 0.1);
             border: 2px solid #00ffff;
             padding: 10px 20px;
@@ -269,7 +269,7 @@
             transition: all 0.3s ease;
         }
 
-        .qr-btn:hover, .clear-btn:hover {
+        .clear-btn:hover {
             background: rgba(0, 255, 255, 0.2);
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
         }
@@ -296,16 +296,6 @@
             color: #666;
         }
 
-        .input-row {
-            display: flex;
-            gap: 10px;
-            align-items: stretch;
-        }
-
-        .input-row .wallet-input {
-            flex: 1;
-        }
-
         .mascot {
             position: fixed;
             bottom: 20px;
@@ -318,43 +308,6 @@
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-15px); }
-        }
-
-        .scan-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        .scan-overlay.active {
-            display: flex;
-        }
-
-        .scan-video {
-            width: 300px;
-            height: 300px;
-            border: 3px solid #00ffff;
-            border-radius: 10px;
-        }
-
-        .scan-close {
-            margin-top: 20px;
-            padding: 10px 30px;
-            background: #ff00aa;
-            border: none;
-            color: #fff;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            border-radius: 5px;
-            cursor: pointer;
         }
 
         .loading-text {
@@ -432,12 +385,7 @@
             </p>
 
             <div class="mb-6">
-                <div class="input-row">
-                    <input type="text" id="wallet-address" class="wallet-input" placeholder="r... (paste XRP address)" autocomplete="off" spellcheck="false">
-                    <button id="scan-qr-btn" class="qr-btn" title="Scan QR">
-                        <i class="fas fa-qrcode"></i> SCAN
-                    </button>
-                </div>
+                <input type="text" id="wallet-address" class="wallet-input" placeholder="r... (paste XRP address)" autocomplete="off" spellcheck="false">
                 <div class="flex justify-center mt-3">
                     <button id="clear-btn" class="clear-btn" style="font-size: 10px; padding: 8px 15px;">
                         CLEAR
@@ -486,13 +434,6 @@
 
     <img src="assets/chibiNEET0.png" alt="NEET" class="mascot">
 
-    <div class="scan-overlay" id="scan-overlay">
-        <video id="scan-video" class="scan-video" autoplay playsinline></video>
-        <p style="color: #00ffff; font-family: 'Orbitron', sans-serif; margin-top: 15px;">Point camera at QR code</p>
-        <button class="scan-close" id="scan-close">CLOSE</button>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script>
         const TIERS = [
             { min: 1000000, name: "Hikikomori Humpback", emoji: "🐋", desc: "NEET Supreme - Luxury Depression Included" },
@@ -596,7 +537,6 @@
         const walletInput = document.getElementById('wallet-address');
         const dropBtn = document.getElementById('drop-btn');
         const clearBtn = document.getElementById('clear-btn');
-        const scanQrBtn = document.getElementById('scan-qr-btn');
 
         walletInput.addEventListener('input', () => {
             const addr = walletInput.value.trim();
@@ -796,64 +736,6 @@
         }
 
         dropBtn.addEventListener('click', runPachinko);
-
-        let videoStream = null;
-        let scanInterval = null;
-
-        scanQrBtn.addEventListener('click', async () => {
-            const overlay = document.getElementById('scan-overlay');
-            const video = document.getElementById('scan-video');
-            
-            overlay.classList.add('active');
-
-            try {
-                videoStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
-                });
-                video.srcObject = videoStream;
-
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                scanInterval = setInterval(() => {
-                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        const code = jsQR(imageData.data, imageData.width, imageData.height);
-                        
-                        if (code && code.data) {
-                            if (validateAddress(code.data)) {
-                                walletInput.value = code.data;
-                                dropBtn.disabled = false;
-                                stopScanner();
-                                overlay.classList.remove('active');
-                            }
-                        }
-                    }
-                }, 200);
-            } catch (err) {
-                console.error('Camera error:', err);
-                alert('Camera access denied. Please paste manually or check permissions.');
-                stopScanner();
-                overlay.classList.remove('active');
-            }
-        });
-
-        function stopScanner() {
-            if (scanInterval) clearInterval(scanInterval);
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
-        }
-
-        document.getElementById('scan-close').addEventListener('click', () => {
-            stopScanner();
-            document.getElementById('scan-overlay').classList.remove('active');
-        });
 
         document.addEventListener('DOMContentLoaded', () => {
             randomizeFrames();
