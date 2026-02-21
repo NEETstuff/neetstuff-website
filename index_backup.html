@@ -176,6 +176,7 @@
                 <div class="hidden md:flex gap-8 text-sm uppercase tracking-widest">
                     <a href="#games" class="hover:text-amber-400 transition">Games</a>
                     <a href="#tokenomics" class="hover:text-amber-400 transition">Tokenomics</a>
+                    <a href="rich-list.html" class="hover:text-amber-400 transition">The Rich List! 🎰</a>
                     <a href="#roadmap" class="hover:text-amber-400 transition">Roadmap</a>
                     <a href="wallet.html" class="hover:text-amber-400 transition">FLX Wallet</a>
                 </div>
@@ -259,7 +260,7 @@
                     </div>
 
                     <div class="bg-zinc-800 rounded-3xl overflow-hidden group">
-                        <div class="h-64 bg-zinc-700 relative overflow-hidden">
+                        <div class="h-80 md:h-64 bg-zinc-700 relative overflow-hidden">
                             <video autoplay loop muted playsinline class="w-full h-full object-cover group-hover:scale-110 transition">
                                 <source src="DaHLi.mp4" type="video/mp4">
                             </video>
@@ -535,7 +536,7 @@
             </div>
         </footer>
 
-        <div id="spotify-player" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.6); border-radius: 16px; overflow: hidden; transition: transform 0.3s ease;">
+        <div id="spotify-player" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.6); border-radius: 16px; overflow: hidden; transition: transform 0.3s ease; transform: translateX(calc(100% + 24px));">
           <iframe 
             style="border-radius:12px;" 
             src="https://open.spotify.com/embed/album/3rQBUTIeAgTlytVmCwf1WL?utm_source=generator&theme=0" 
@@ -549,6 +550,9 @@
         </div>
 
         <style>
+        #spotify-player:hover {
+          transform: translateX(0);
+        }
         @media (max-width: 768px) {
           #spotify-player {
             display: none;
