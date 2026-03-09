@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Rich List! | NEETstuff</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            min-height: 100vh;
+            font-family: 'Rajdhani', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .chaos-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(255, 0, 170, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 215, 0, 0.08) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0a0f 0%, #1a0a1f 50%, #0a0a0f 100%);
+            z-index: -2;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(0, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float-up 8s infinite linear;
+        }
+
+        .particle:nth-child(odd) {
+            background: rgba(255, 0, 170, 0.6);
+            animation-duration: 12s;
+        }
+
+        @keyframes float-up {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .float-text {
+            position: absolute;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff00aa;
+            text-shadow: 0 0 10px #ff00aa, 0 0 20px #00ffff;
+            animation: float-up-text 15s infinite linear;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes float-up-text {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .pachinko-container {
+            position: relative;
+            width: 100%;
+            max-width: 784px;
+            aspect-ratio: 784 / 1168;
+            margin: 0 auto;
+        }
+
+        .pachinko-inner {
+            position: absolute;
+            background: linear-gradient(180deg, #0f1a2e 0%, #1a0a2e 50%, #0f1a2e 100%);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .frame-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            object-fit: contain;
+        }
+
+        #pegs-container, #slots-container, #ball-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .peg {
+            position: absolute;
+            width: clamp(6px, 2.5vw, 12px);
+            height: clamp(6px, 2.5vw, 12px);
+            background: radial-gradient(circle, #ffd700 0%, #b8860b 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            transform: translate(-50%, -50%);
+        }
+
+        .ball {
+            position: absolute;
+            width: clamp(16px, 4vw, 24px);
+            height: clamp(16px, 4vw, 24px);
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #ff0000);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 15px rgba(255, 0, 100, 0.8),
+                inset -3px -3px 6px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            transition: top 0.05s linear, left 0.05s linear;
+        }
+
+        .slot {
+            position: absolute;
+            bottom: 3%;
+            padding: 2px 1%;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+            border: 2px solid #333;
+            border-radius: 6px;
+            text-align: center;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(5px, 1.5vw, 8px);
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+            transition: all 0.3s ease;
+            min-width: clamp(20px, 6vw, 40px);
+        }
+
+        .slot.active {
+            border-color: #ff00aa;
+            box-shadow: 0 0 20px rgba(255, 0, 170, 0.6);
+            transform: scale(1.1);
+        }
+
+        .slot.winner {
+            border-color: #ffd700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            animation: pulse-gold 0.5s ease infinite;
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% { transform: scale(1.1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .tier-display {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .tier-name {
+            font-size: 14px;
+            color: #ff00aa;
+            text-shadow: 0 0 10px #ff00aa;
+            margin-bottom: 8px;
+        }
+
+        .tier-balance {
+            font-size: 10px;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .glitch-text {
+            animation: glitch 2s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { text-shadow: 2px 0 #ff00aa, -2px 0 #00ffff; }
+            92% { text-shadow: -2px 0 #ff00aa, 2px 0 #00ffff; transform: translateX(-2px); }
+            94% { text-shadow: 2px 0 #ff00aa, -2px 0 #00ffff; transform: translateX(2px); }
+            96% { text-shadow: -2px 0 #ff00aa, 2px 0 #00ffff; }
+        }
+
+        .drop-btn {
+            background: linear-gradient(180deg, #ff00aa 0%, #aa0077 100%);
+            border: none;
+            padding: 15px 40px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 
+                0 5px 20px rgba(255, 0, 170, 0.5),
+                inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .drop-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 30px rgba(255, 0, 170, 0.7),
+                inset 0 2px 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .drop-btn:disabled {
+            background: #333;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .clear-btn {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            padding: 10px 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            color: #00ffff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .wallet-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px dashed #ff00aa;
+            padding: 15px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            color: #fff;
+            width: 100%;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .wallet-input:focus {
+            outline: none;
+            border-style: solid;
+            box-shadow: 0 0 20px rgba(255, 0, 170, 0.4);
+        }
+
+        .wallet-input::placeholder {
+            color: #666;
+        }
+
+        .mascot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            animation: bounce 2s ease infinite;
+            z-index: 100;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .loading-text {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: #00ffff;
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @media (max-width: 480px) {
+            .tier-display {
+                font-size: 8px;
+            }
+            
+            .tier-name {
+                font-size: 10px;
+            }
+            
+            .tier-balance {
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chaos-bg"></div>
+    <div class="particles" id="particles"></div>
+
+    <nav class="fixed top-0 w-full bg-zinc-900/90 backdrop-blur-md z-[100] border-b border-amber-500/30">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center py-4">
+            <div class="flex items-center gap-3">
+                <a href="index.html" style="pointer-events: auto;">
+                    <img src="assets/logo47.png" alt="NEETstuff" style="height: 75px; display: block;">
+                </a>
+            </div>
+            <div class="flex gap-4 md:gap-8 text-sm uppercase tracking-widest flex-wrap justify-center" style="pointer-events: auto;">
+                <a href="index_backup.html#games" class="hover:text-amber-400 transition" style="pointer-events: auto;">Games</a>
+                <a href="tokenomics.html" class="hover:text-amber-400 transition" style="pointer-events: auto;">Tokenomics</a>
+                <a href="rich-list.html" class="text-amber-400 transition" style="pointer-events: auto;">The Rich List! 🎰</a>
+                <a href="index_backup.html#roadmap" class="hover:text-amber-400 transition" style="pointer-events: auto;">Roadmap</a>
+                <a href="wallet.html" class="hover:text-amber-400 transition" style="pointer-events: auto;">FLX Wallet</a>
+            </div>
+            <a href="wallet.html" class="bg-amber-500 hover:bg-amber-400 text-black font-bold px-6 py-2 rounded-full transition text-sm uppercase tracking-wider" style="pointer-events: auto;">Open Wallet</a>
+        </div>
+    </nav>
+
+    <main class="pt-28 pb-10 px-2" style="overflow-x: hidden;">
+        <div class="max-w-2xl mx-auto">
+            <h1 class="text-center mb-2 glitch-text" style="font-family: 'Press Start 2P', monospace; font-size: clamp(18px, 5vw, 28px); color: #ffd700; text-shadow: 3px 3px 0 #ff00aa;">
+                THE RICH LIST!
+            </h1>
+            <p class="text-center mb-8 text-gray-400" style="font-family: 'Rajdhani', sans-serif; font-size: 18px;">
+                Drop your XRP address into the machine and find your rank!
+            </p>
+
+            <div class="mb-6">
+                <input type="text" id="wallet-address" class="wallet-input" placeholder="r... (paste XRP address)" autocomplete="off" spellcheck="false">
+                <div class="flex justify-center mt-3">
+                    <button id="clear-btn" class="clear-btn" style="font-size: 10px; padding: 8px 15px;">
+                        CLEAR
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-center mb-8">
+                <button id="drop-btn" class="drop-btn" disabled>
+                    DROP! 🎰
+                </button>
+            </div>
+
+            <div class="pachinko-container">
+                <div class="pachinko-inner" id="pachinko-board">
+                    <div id="pegs-container"></div>
+                    <div id="slots-container"></div>
+                    <div id="ball-container"></div>
+                    <div id="result-display" class="absolute inset-0 flex items-center justify-center" style="display: none;">
+                        <div class="tier-display">
+                            <div class="tier-name" id="tier-name"></div>
+                            <div class="tier-balance" id="tier-balance"></div>
+                        </div>
+                    </div>
+                    <div id="loading-display" class="absolute inset-0 flex items-center justify-center" style="display: none;">
+                        <div class="loading-text">FETCHING...</div>
+                    </div>
+                </div>
+                <img id="frame-overlay" class="frame-overlay" src="assets/p_machine_2.png" alt="pachinko frame">
+            </div>
+        </div>
+    </main>
+
+    <img src="assets/chibiNEET0.png" alt="NEET" class="mascot">
+
+    <script>
+        const TIERS = [
+            { min: 1000000, name: "Hikikomori Humpback", emoji: "🐋", desc: "NEET Supreme - Luxury Depression Included" },
+            { min: 500000, name: "NEET Whale Supreme", emoji: "🐋", desc: "Whales dream of this lifestyle" },
+            { min: 250000, name: "Basement Leviathan", emoji: "🦑", desc: "Victory royale in life RNG" },
+            { min: 100000, name: "Ramen-Fueled Orca", emoji: "🐋", desc: "Premium cup noodles now!" },
+            { min: 50000, name: "Doomer Dolphin", emoji: "🐬", desc: "Swims in liquidity while world burns" },
+            { min: 25000, name: "Virgin Shark", emoji: "🦈", desc: "Bites hard on dips, zero other experience" },
+            { min: 10000, name: "Goblin Goblin", emoji: "👺", desc: "Hoards XRP like shiny loot" },
+            { min: 5000, name: "Copefish", emoji: "🐟", desc: "Next bull run coming..." },
+            { min: 1000, name: "Shrimpcel", emoji: "🦐", desc: "Small holdings, big incel energy" },
+            { min: 500, name: "Plankton Pill", emoji: "🦠", desc: "Barely floating" },
+            { min: 100, name: "Dust Mote", emoji: "💨", desc: "Participation trophy for existing" },
+            { min: 0, name: "Void Worm", emoji: "🪱", desc: "Welcome to the bottom" }
+        ];
+
+        // p_machine_2.png - optimal frame: 715×1102 visible, perfectly balanced top/bottom (33px)
+        const OPTIMAL_FRAME = { 
+            file: 'p_machine_2.png', 
+            left: 46, 
+            top: 33, 
+            right: 23, 
+            bottom: 33, 
+            visibleW: 715, 
+            visibleH: 1102,
+            aspectRatio: 0.649
+        };
+
+        const FRAMES = [OPTIMAL_FRAME.file];
+
+        let currentFrame = 0;
+        let isAnimating = false;
+
+        function updateGameDimensions(frameIndex) {
+            const frame = OPTIMAL_FRAME;
+            const viewportWidth = window.innerWidth;
+            const originalWidth = 784;
+            const originalHeight = 1168;
+            
+            let containerWidth, gamePercent;
+            
+            // Responsive breakpoints - use full PNG size on desktop
+            if (viewportWidth < 480) {
+                containerWidth = viewportWidth * 0.92;
+                gamePercent = 0.75;
+            } else if (viewportWidth < 768) {
+                containerWidth = viewportWidth * 0.85;
+                gamePercent = 0.80;
+            } else {
+                containerWidth = originalWidth; // 784px - full PNG
+                gamePercent = 0.60;
+            }
+            
+            const scale = containerWidth / originalWidth;
+            
+            // Game fills percentage of visible area, centered within it
+            const gameWidth = frame.visibleW * scale * gamePercent;
+            const gameHeight = frame.visibleH * scale * gamePercent;
+            
+            // Position game in center of visible area
+            const visibleCenterX = (frame.left + frame.visibleW / 2) * scale;
+            const visibleCenterY = (frame.top + frame.visibleH / 2) * scale;
+            const gameLeft = visibleCenterX - gameWidth / 2;
+            const gameTop = visibleCenterY - gameHeight / 2;
+            
+            const container = document.querySelector('.pachinko-container');
+            const inner = document.querySelector('.pachinko-inner');
+            
+            container.style.maxWidth = containerWidth + 'px';
+            container.style.aspectRatio = `${originalWidth} / ${originalHeight}`;
+            
+            inner.style.width = gameWidth + 'px';
+            inner.style.height = gameHeight + 'px';
+            inner.style.top = gameTop + 'px';
+            inner.style.left = gameLeft + 'px';
+            
+            console.log(`[RichList] Viewport: ${viewportWidth}px`);
+            console.log(`[RichList] Container: ${containerWidth}px, Scale: ${scale.toFixed(3)}`);
+            console.log(`[RichList] Game: ${gameWidth.toFixed(0)}x${gameHeight.toFixed(0)} at (${gameLeft.toFixed(0)}, ${gameTop.toFixed(0)})`);
+            
+            setTimeout(createPegsAndSlots, 50);
+        }
+
+        function randomizeFrames() {
+            // Using optimal frame - no randomization needed
+            const frameImg = OPTIMAL_FRAME.file;
+            currentFrame = 0;
+            document.getElementById('frame-overlay').src = `assets/${frameImg}`;
+            updateGameDimensions(0);
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (8 + Math.random() * 8) + 's';
+                container.appendChild(particle);
+            }
+            
+            for (let i = 0; i < 5; i++) {
+                const floatText = document.createElement('div');
+                floatText.className = 'float-text';
+                floatText.textContent = 'ニート';
+                floatText.style.left = Math.random() * 100 + '%';
+                floatText.style.animationDelay = Math.random() * 15 + 's';
+                floatText.style.animationDuration = (15 + Math.random() * 10) + 's';
+                floatText.style.fontSize = (18 + Math.random() * 20) + 'px';
+                container.appendChild(floatText);
+            }
+        }
+
+        function createPegsAndSlots() {
+            console.log('[RichList] Creating pegs and slots...');
+            const board = document.getElementById('pachinko-board');
+            const pegsContainer = document.getElementById('pegs-container');
+            const slotsContainer = document.getElementById('slots-container');
+
+            pegsContainer.innerHTML = '';
+            slotsContainer.innerHTML = '';
+
+            const boardRect = board.getBoundingClientRect();
+            const boardWidth = boardRect.width;
+            const boardHeight = boardRect.height;
+            console.log('[RichList] Board size:', boardWidth.toFixed(0), 'x', boardHeight.toFixed(0));
+
+            const rows = 6;
+            const cols = 7;
+            const startXPercent = 12;
+            const endXPercent = 88;
+            const startYPercent = 8;
+            const endYPercent = 55;
+            const spacingYPercent = (endYPercent - startYPercent) / rows;
+            const spacingXPercent = (endXPercent - startXPercent) / cols;
+
+            let pegCount = 0;
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const offset = (row % 2 === 0) ? 0 : spacingXPercent / 2;
+                    if (col < cols - 1 || row % 2 !== 0) {
+                        const peg = document.createElement('div');
+                        peg.className = 'peg';
+                        const leftPercent = startXPercent + col * spacingXPercent + offset;
+                        const topPercent = startYPercent + row * spacingYPercent;
+                        peg.style.left = leftPercent + '%';
+                        peg.style.top = topPercent + '%';
+                        pegsContainer.appendChild(peg);
+                        pegCount++;
+                    }
+                }
+            }
+            console.log('[RichList] Created', pegCount, 'pegs');
+
+            const slotCount = TIERS.length;
+            const slotWidthPercent = 100 / slotCount - 1;
+            
+            for (let i = 0; i < slotCount; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.id = `slot-${i}`;
+                slot.style.left = (i * (100 / slotCount) + 0.5) + '%';
+                slot.style.width = slotWidthPercent + '%';
+                slot.innerHTML = `<div style="font-size: clamp(8px, 2.5vw, 14px);">${TIERS[i].emoji}</div>`;
+                slotsContainer.appendChild(slot);
+            }
+            console.log('[RichList] Created', slotCount, 'slots');
+        }
+
+        function validateAddress(address) {
+            const isValid = address.startsWith('r') && address.length >= 25 && address.length <= 35;
+            console.log('[RichList] validateAddress:', address, '->', isValid);
+            return isValid;
+        }
+
+        const walletInput = document.getElementById('wallet-address');
+        const dropBtn = document.getElementById('drop-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        
+        walletInput.addEventListener('input', () => {
+            console.log('[RichList] Wallet input changed:', walletInput.value.substring(0, 10) + '...');
+        });
+
+        walletInput.addEventListener('input', () => {
+            const addr = walletInput.value.trim();
+            dropBtn.disabled = !validateAddress(addr);
+        });
+
+        walletInput.addEventListener('paste', () => {
+            setTimeout(() => {
+                const addr = walletInput.value.trim();
+                if (validateAddress(addr)) {
+                    dropBtn.disabled = false;
+                    const emoji = document.createElement('div');
+                    emoji.innerText = '📥✨';
+                    emoji.style.cssText = 'position:absolute;font-size:24px;animation:fadeUp 1s ease-out;pointer-events:none;';
+                    emoji.style.left = '50%';
+                    emoji.style.top = '50%';
+                    walletInput.parentElement.style.position = 'relative';
+                    walletInput.parentElement.appendChild(emoji);
+                    setTimeout(() => emoji.remove(), 1000);
+                }
+            }, 0);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            walletInput.value = '';
+            dropBtn.disabled = true;
+            resetBoard();
+        });
+
+        function resetBoard() {
+            document.getElementById('ball-container').innerHTML = '';
+            document.getElementById('result-display').style.display = 'none';
+            document.getElementById('loading-display').style.display = 'none';
+            document.querySelectorAll('.slot').forEach(s => s.classList.remove('active', 'winner'));
+            isAnimating = false;
+        }
+
+        let lastFetchError = null;
+
+        async function fetchBalance(address) {
+            console.log('[RichList] Fetching balance for:', address);
+            lastFetchError = null;
+            
+            try {
+                console.log('[RichList] Trying xrplcluster.com API...');
+                const response = await fetch('https://xrplcluster.com/api/v1/account_info', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        account: address,
+                        ledger_index: 'validated'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`xrplcluster response: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const balance = data.result?.account_data?.Balance ? 
+                    parseInt(data.result.account_data.Balance) / 1000000 : 0;
+                console.log('[RichList] Balance fetched from xrplcluster:', balance);
+                return balance;
+            } catch (e) {
+                console.warn('[RichList] xrplcluster failed:', e.message);
+                lastFetchError = e.message;
+                
+                try {
+                    console.log('[RichList] Trying xrpldata.com API...');
+                    const altResponse = await fetch('https://api.xrpldata.com/api/v1/xrp/ledger/account_info', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ account: address })
+                    });
+                    
+                    if (!altResponse.ok) throw new Error(`xrpldata response: ${altResponse.status}`);
+                    
+                    const altData = await altResponse.json();
+                    const balance = altData.result?.account_data?.Balance ? 
+                        parseInt(altData.result.account_data.Balance) / 1000000 : 0;
+                    console.log('[RichList] Balance fetched from xrpldata:', balance);
+                    return balance;
+                } catch (e2) {
+                    console.warn('[RichList] xrpldata failed:', e2.message);
+                    lastFetchError = e2.message;
+                    
+                    try {
+                        console.log('[RichList] Trying xrpl.org API...');
+                        const xrplResponse = await fetch('https://xrpl.org/api/v1/account_info', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ account: address })
+                        });
+                        
+                        if (!xrplResponse.ok) throw new Error(`xrpl.org response: ${xrplResponse.status}`);
+                        
+                        const xrplData = await xrplResponse.json();
+                        const balance = xrplData.result?.account_data?.Balance ? 
+                            parseInt(xrplData.result.account_data.Balance) / 1000000 : 0;
+                        console.log('[RichList] Balance fetched from xrpl.org:', balance);
+                        return balance;
+                    } catch (e3) {
+                        console.warn('[RichList] xrpl.org failed:', e3.message);
+                        lastFetchError = e3.message;
+                        
+                        console.error('[RichList] All APIs failed, using demo mode');
+                        const demoBalance = Math.floor(Math.random() * 50000);
+                        console.log('[RichList] Demo balance:', demoBalance);
+                        return demoBalance;
+                    }
+                }
+            }
+        }
+
+        function getTier(xrpBalance) {
+            for (let i = 0; i < TIERS.length; i++) {
+                if (xrpBalance >= TIERS[i].min) return { tier: TIERS[i], index: i };
+            }
+            return { tier: TIERS[TIERS.length - 1], index: TIERS.length - 1 };
+        }
+
+        async function runPachinko() {
+            console.log('[RichList] runPachinko called');
+            
+            if (isAnimating) {
+                console.log('[RichList] Already animating, ignoring');
+                return;
+            }
+            isAnimating = true;
+            console.log('[RichList] Animation started');
+
+            const address = walletInput.value.trim();
+            console.log('[RichList] Address:', address);
+            
+            if (!validateAddress(address)) {
+                console.log('[RichList] Invalid address');
+                return;
+            }
+
+            resetBoard();
+            randomizeFrames();
+
+            console.log('[RichList] Showing loading...');
+            document.getElementById('loading-display').style.display = 'flex';
+
+            console.log('[RichList] Fetching balance...');
+            const balance = await fetchBalance(address);
+            console.log('[RichList] Balance:', balance);
+            
+            const { tier, index } = getTier(balance);
+            console.log('[RichList] Tier:', tier.name, 'index:', index);
+
+            document.getElementById('loading-display').style.display = 'none';
+
+            const board = document.getElementById('pachinko-board');
+            const boardRect = board.getBoundingClientRect();
+            console.log('[RichList] Board rect:', boardRect.width, 'x', boardRect.height);
+
+            const ball = document.createElement('div');
+            ball.className = 'ball';
+            ball.style.left = (boardRect.width / 2 - 12) + 'px';
+            ball.style.top = '30px';
+            document.getElementById('ball-container').appendChild(ball);
+            console.log('[RichList] Ball created at:', ball.style.left, ball.style.top);
+
+            const slotElements = document.querySelectorAll('.slot');
+            const targetSlot = slotElements[index];
+            const targetLeft = parseFloat(targetSlot.style.left) + parseFloat(targetSlot.style.width) / 2 - 12;
+            console.log('[RichList] Target slot:', index, 'left:', targetLeft);
+
+            let currentTop = 30;
+            let currentLeft = boardRect.width / 2 - 12;
+            let velocityY = 2;
+            let velocityX = (Math.random() - 0.5) * 3;
+            const gravity = 0.15;
+            const bounce = 0.6;
+            let frameCount = 0;
+
+            function animate() {
+                frameCount++;
+                velocityY += gravity;
+                currentTop += velocityY;
+                currentLeft += velocityX;
+
+                const pegs = document.querySelectorAll('.peg');
+                pegs.forEach(peg => {
+                const pegRect = peg.getBoundingClientRect();
+                const boardLeft = board.getBoundingClientRect().left;
+                const pegLeft = pegRect.left - boardLeft;
+                const boardTopLocal = board.getBoundingClientRect().top;
+                const pegTop = pegRect.top - boardTopLocal;
+                    
+                    const ballCenterX = currentLeft + 12;
+                    const ballCenterY = currentTop + 12;
+                    const dist = Math.sqrt((ballCenterX - (pegLeft + 6)) ** 2 + (ballCenterY - (pegTop + 6)) ** 2);
+                    
+                    if (dist < 18) {
+                        velocityX = (velocityX + (ballCenterX - (pegLeft + 6)) * 0.3) * bounce;
+                        velocityY = -velocityY * bounce;
+                    }
+                });
+
+                if (currentLeft < 10 || currentLeft > boardRect.width - 34) {
+                    velocityX = -velocityX;
+                    currentLeft = Math.max(10, Math.min(currentLeft, boardRect.width - 34));
+                }
+
+                ball.style.top = currentTop + 'px';
+                ball.style.left = currentLeft + 'px';
+
+                const boardTop = board.getBoundingClientRect().top;
+
+                if (currentTop > boardRect.height - 80) {
+                    console.log('[RichList] Ball landed at:', currentLeft);
+                    const landingSlot = Math.floor(currentLeft / (boardRect.width / TIERS.length));
+                    const finalIndex = Math.min(landingSlot, TIERS.length - 1);
+                    console.log('[RichList] Landing slot:', finalIndex);
+
+                    slotElements.forEach((s, i) => {
+                        s.classList.remove('active');
+                        if (i === finalIndex) s.classList.add('active');
+                    });
+
+                    setTimeout(() => {
+                        slotElements.forEach(s => s.classList.remove('active'));
+                        targetSlot.classList.add('active', 'winner');
+                        
+                        document.getElementById('tier-name').innerHTML = `${tier.emoji} ${tier.name}`;
+                        document.getElementById('tier-balance').innerHTML = `${balance.toLocaleString()} XRP<br><span style="color:#888;font-size:8px;">${tier.desc}</span>`;
+                        document.getElementById('result-display').style.display = 'flex';
+                        
+                        if (lastFetchError) {
+                            const errorNote = document.createElement('div');
+                            errorNote.style.cssText = 'position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:10px;color:#ff6666;';
+                            errorNote.innerHTML = `⚠️ Demo mode (API unavailable)<br><span style="color:#888">${lastFetchError}</span>`;
+                            document.getElementById('result-display').appendChild(errorNote);
+                        }
+                        
+                        for (let i = 0; i < 8; i++) {
+                            const confetti = document.createElement('div');
+                            confetti.style.cssText = `
+                                position:absolute;
+                                width:10px;
+                                height:10px;
+                                background:${['#ff00aa','#00ffff','#ffd700'][i%3]};
+                                border-radius:50%;
+                                left:${currentLeft}px;
+                                top:${boardRect.height - 80}px;
+                                animation:confetti${i} 1s ease-out forwards;
+                            `;
+                            document.getElementById('ball-container').appendChild(confetti);
+                            
+                            const style = document.createElement('style');
+                            style.textContent = `
+                                @keyframes confetti${i} {
+                                    0% { transform: translate(0,0) rotate(0); opacity:1; }
+                                    100% { transform: translate(${(Math.random()-0.5)*100}px, -50px) rotate(360deg); opacity:0; }
+                                }
+                            `;
+                            document.head.appendChild(style);
+                        }
+                        
+                        console.log('[RichList] Animation complete, tier:', tier.name);
+                        isAnimating = false;
+                    }, 300);
+                    return;
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            console.log('[RichList] Starting animation loop');
+            setTimeout(animate, 100);
+        }
+
+        dropBtn.addEventListener('click', () => {
+            console.log('[RichList] DROP button clicked');
+            runPachinko();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('[RichList] Page loaded, initializing...');
+            randomizeFrames();
+            createParticles();
+        });
+
+        window.addEventListener('resize', () => {
+            updateGameDimensions(currentFrame);
+        });
+    </script>
+</body>
+</html>

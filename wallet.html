@@ -19,6 +19,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <title>NEETstuff Wallet</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="assets/firebase-config.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -429,12 +434,14 @@
   </footer>
 
   <script>
-    let isLoggedIn = localStorage.getItem('neetstuff_loggedIn') === 'true';
+    // Firebase instances
+    let currentUser = null;
+    let unsubscribeBalance = null;
     let isWeb3Mode = false;
-    let uniqueId = localStorage.getItem('neetstuff_uniqueId') || 'neet-' + Math.random().toString(36).substr(2, 9);
     let xamanConnected = localStorage.getItem('xaman_connected') === 'true';
     let xamanAddress = localStorage.getItem('xaman_address') || '';
 
+    // UI Elements
     const loginBar = document.getElementById('loginBar');
     const walletContent = document.getElementById('walletContent');
     const profileBtn = document.getElementById('profileBtn');
@@ -454,12 +461,60 @@
     const xamanConnectedDiv = document.getElementById('xamanConnected');
     const xamanAddressEl = document.getElementById('xamanAddress');
     const disconnectXamanBtn = document.getElementById('disconnectXaman');
+    const flxBalanceEl = document.getElementById('flxBalance');
+    const vltBalanceEl = document.getElementById('vltBalance');
 
-    function init() {
-      localStorage.setItem('neetstuff_uniqueId', uniqueId);
-      uniqueIdEl.textContent = uniqueId;
+    // Initialize
+    async function init() {
+      const firebaseReady = await initFirebase();
+      
+      if (firebaseReady) {
+        // Listen for auth state changes
+        onAuthStateChanged(async (user) => {
+          if (user) {
+            currentUser = user;
+            localStorage.setItem('neetstuff_loggedIn', 'true');
+            localStorage.setItem('neetstuff_uid', user.uid);
+            
+            // Get or create user profile
+            let profile = await getUserProfile(user.uid);
+            if (!profile) {
+              profile = await createUserProfile(user.uid, {
+                displayName: user.displayName || 'Player',
+                email: user.email,
+                photoURL: user.photoURL
+              });
+            }
+            
+            uniqueIdEl.textContent = user.uid.substring(0, 12);
+            showWallet();
+            subscribeToUserBalance();
+          } else {
+            currentUser = null;
+            localStorage.removeItem('neetstuff_loggedIn');
+            localStorage.removeItem('neetstuff_uid');
+            showLogin();
+          }
+        });
+      } else {
+        // Fallback to localStorage if Firebase not configured
+        const isLoggedIn = localStorage.getItem('neetstuff_loggedIn') === 'true';
+        if (isLoggedIn) showWallet();
+        else showLogin();
+      }
+      
       updateXamanUI();
-      if (isLoggedIn) showWallet(); else showLogin();
+    }
+
+    function subscribeToUserBalance() {
+      if (unsubscribeBalance) unsubscribeBalance();
+      
+      if (currentUser) {
+        unsubscribeBalance = subscribeToBalance(currentUser.uid, (balances) => {
+          flxBalanceEl.textContent = balances.flx.toLocaleString();
+          vltBalanceEl.textContent = balances.vlt.toLocaleString();
+        });
+      }
     }
 
     function updateXamanUI() {
@@ -488,7 +543,7 @@
       logoutBtn?.classList.remove('hidden');
     }
 
-    function connectXaman() {
+    async function connectXaman() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
       window.location.href = 'xaman://xrpl';
@@ -501,11 +556,21 @@
       setTimeout(() => { if (!xamanConnected) mockXamanConnection(); }, 3000);
     }
 
-    function mockXamanConnection() {
+    async function mockXamanConnection() {
       xamanConnected = true;
       xamanAddress = 'r' + Math.random().toString(36).substr(2, 25);
       localStorage.setItem('xaman_connected', 'true');
       localStorage.setItem('xaman_address', xamanAddress);
+      
+      // Link to Firebase if logged in
+      if (currentUser) {
+        try {
+          await linkXamanWallet(currentUser.uid, xamanAddress);
+        } catch (e) {
+          console.log('Firebase not configured, using local storage only');
+        }
+      }
+      
       updateXamanUI();
     }
 
@@ -517,22 +582,64 @@
       updateXamanUI();
     }
 
-    document.querySelectorAll('#loginBar button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        isLoggedIn = true;
-        localStorage.setItem('neetstuff_loggedIn', 'true');
-        showWallet();
+    // Login button handlers
+    document.querySelectorAll('#normieLogin button').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          if (btn.textContent.includes('Google')) {
+            await signInWithGoogle();
+          } else if (btn.textContent.includes('Facebook')) {
+            await signInWithFacebook();
+          } else if (btn.textContent.includes('Email')) {
+            await signInWithEmail();
+          } else {
+            // Continue button - sign in anonymously
+            await signInWithEmail();
+          }
+        } catch (error) {
+          console.error('Sign in error:', error);
+          // Fallback to local mode
+          localStorage.setItem('neetstuff_loggedIn', 'true');
+          showWallet();
+        }
+      });
+    });
+
+    document.querySelectorAll('#web3Login button').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (btn.textContent.includes('Xaman')) {
+          await connectXaman();
+        } else if (btn.textContent.includes('Metamask')) {
+          // TODO: Implement Metamask connection
+          alert('Metamask integration coming soon');
+        } else if (btn.textContent.includes('Phantom')) {
+          // TODO: Implement Phantom connection
+          alert('Phantom integration coming soon');
+        }
       });
     });
 
     profileBtn.addEventListener('click', () => {
-      if (isLoggedIn) alert(`Your Unique ID: ${uniqueId}`);
-      else showLogin();
+      if (currentUser) {
+        alert(`Your Unique ID: ${currentUser.uid}`);
+      } else {
+        showLogin();
+      }
     });
 
     switchToWeb3Login?.addEventListener('click', () => { normieLogin.classList.add('hidden'); web3Login.classList.remove('hidden'); });
     switchToNormieLogin?.addEventListener('click', () => { web3Login.classList.add('hidden'); normieLogin.classList.remove('hidden'); });
-    logoutBtn?.addEventListener('click', () => { isLoggedIn = false; localStorage.removeItem('neetstuff_loggedIn'); showLogin(); });
+    
+    logoutBtn?.addEventListener('click', async () => {
+      try {
+        await signOut();
+      } catch (error) {
+        // Fallback
+        localStorage.removeItem('neetstuff_loggedIn');
+        showLogin();
+      }
+    });
+    
     xamanConnectSection?.addEventListener('click', () => { if (!xamanConnected) connectXaman(); });
     disconnectXamanBtn?.addEventListener('click', (e) => { e.stopPropagation(); disconnectXaman(); });
 
@@ -545,7 +652,8 @@
     });
 
     copyIdBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(uniqueId).then(() => {
+      const textToCopy = currentUser ? currentUser.uid : uniqueIdEl.textContent;
+      navigator.clipboard.writeText(textToCopy).then(() => {
         copyIdBtn.textContent = 'Copied!';
         setTimeout(() => copyIdBtn.textContent = 'Copy', 2000);
       });

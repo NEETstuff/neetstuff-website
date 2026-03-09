@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NEETstuff Visual Editor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: system-ui, sans-serif; 
+      background: #0a0a0f; 
+      color: white; 
+      height: 100vh; 
+      overflow: hidden; 
+    }
+    
+    #app { display: flex; height: 100vh; }
+    
+    /* Left Sidebar */
+    .sidebar {
+      width: 260px;
+      background: #12121a;
+      border-right: 1px solid #2a2a3a;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    
+    .sidebar-header {
+      padding: 15px 20px;
+      background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+    }
+    
+    .sidebar-header h1 { font-size: 14px; font-weight: 700; }
+    .sidebar-header p { font-size: 10px; opacity: 0.8; margin-top: 2px; }
+    
+    .section { padding: 12px; border-bottom: 1px solid #2a2a3a; }
+    .section h3 { 
+      font-size: 10px; 
+      text-transform: uppercase; 
+      color: #555;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    
+    .file-list { list-style: none; }
+    .file-list li {
+      padding: 8px 12px;
+      margin: 3px 0;
+      background: #1a1a25;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 12px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .file-list li:hover { background: #252535; }
+    .file-list li.active { background: #e94560; }
+    
+    /* Device Buttons */
+    .device-buttons {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .device-btn {
+      flex: 1;
+      padding: 10px;
+      background: #1a1a25;
+      border: 1px solid #2a2a3a;
+      color: #888;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .device-btn:hover { background: #252535; }
+    .device-btn.active {
+      background: #e94560;
+      border-color: #e94560;
+      color: white;
+    }
+    
+    /* Canvas Area */
+    .canvas-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #0a0a0f;
+      min-width: 0;
+    }
+    
+    .canvas-header {
+      height: 42px;
+      background: #12121a;
+      border-bottom: 1px solid #2a2a3a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+    }
+    
+    .canvas-title {
+      color: #888;
+      font-size: 12px;
+    }
+    
+    .canvas-hint {
+      color: #444;
+      font-size: 11px;
+    }
+    
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      overflow: auto;
+      background: #1a1a25;
+    }
+    
+    .canvas-frame {
+      background: white;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    /* Device Sizes */
+    .canvas-frame.desktop { max-width: 100%; }
+    .canvas-frame.tablet { max-width: 768px; height: 1024px; border-radius: 15px; }
+    .canvas-frame.mobile { max-width: 375px; height: 667px; border-radius: 25px; border: 6px solid #333; }
+    
+    /* Right Panel */
+    .props-panel {
+      width: 300px;
+      background: #12121a;
+      border-left: 1px solid #2a2a3a;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    
+    .props-header {
+      padding: 12px 15px;
+      background: #1a1a25;
+      border-bottom: 1px solid #2a2a3a;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #e94560;
+      letter-spacing: 1px;
+    }
+    
+    .props-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+    
+    .props-empty {
+      text-align: center;
+      color: #444;
+      padding: 30px;
+      font-size: 12px;
+    }
+    
+    .props-section {
+      margin-bottom: 20px;
+    }
+    
+    .props-section h4 {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    
+    .prop-row {
+      margin-bottom: 10px;
+    }
+    
+    .prop-row label {
+      display: block;
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    
+    .prop-row input, .prop-row textarea, .prop-row select {
+      width: 100%;
+      padding: 8px 10px;
+      background: #0a0a0f;
+      border: 1px solid #2a2a3a;
+      color: white;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: inherit;
+    }
+    
+    .prop-row input:focus, .prop-row textarea:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+    
+    .prop-row textarea { min-height: 70px; resize: vertical; }
+    
+    .color-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .color-row input[type="color"] {
+      width: 36px;
+      height: 32px;
+      padding: 0;
+      border: none;
+      cursor: pointer;
+      background: none;
+    }
+    
+    .color-row input[type="text"] { flex: 1; }
+    
+    .apply-btn {
+      width: 100%;
+      padding: 12px;
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .apply-btn:hover { background: #ff6b6b; }
+    
+    /* Toolbar */
+    .toolbar {
+      padding: 10px 12px;
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid #2a2a3a;
+    }
+    
+    .toolbar button {
+      flex: 1;
+      padding: 10px;
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .toolbar button:hover { background: #ff6b6b; }
+    .toolbar button.secondary { background: #1a1a25; }
+    .toolbar button.secondary:hover { background: #252535; }
+    
+    /* Status Bar */
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 260px;
+      right: 0;
+      background: #0a0a0f;
+      padding: 6px 15px;
+      font-size: 10px;
+      color: #555;
+      display: flex;
+      gap: 20px;
+      border-top: 1px solid #2a2a3a;
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      background: #00c853;
+      color: white;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .toast.show { opacity: 1; }
+    
+    /* Selected element highlight */
+    .canvas-frame::selection {
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h1>🎨 NEETstuff Editor</h1>
+        <p>Visual Website Editor</p>
+      </div>
+      
+      <div class="section">
+        <h3>Device View</h3>
+        <div class="device-buttons">
+          <button class="device-btn active" data-device="desktop" title="Desktop">🖥️</button>
+          <button class="device-btn" data-device="tablet" title="Tablet">📱</button>
+          <button class="device-btn" data-device="mobile" title="Mobile">📲</button>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h3>Pages</h3>
+        <ul class="file-list" id="fileList">
+          <li class="active" data-file="index"><span>📄</span> Home</li>
+          <li data-file="download"><span>📥</span> Download</li>
+          <li data-file="tokenomics"><span>📊</span> Tokenomics</li>
+          <li data-file="vault"><span>🔐</span> Vault</li>
+          <li data-file="wallet"><span>👛</span> Wallet</li>
+          <li data-file="rich-list"><span>💰</span> Rich List</li>
+        </ul>
+      </div>
+      
+      <div class="section" style="margin-top: auto;">
+        <h3>Actions</h3>
+        <ul class="file-list">
+          <li id="undoBtn"><span>↩️</span> Undo</li>
+          <li id="redoBtn"><span>↪️</span> Redo</li>
+          <li id="previewBtn"><span>👁️</span> Preview</li>
+          <li id="codeBtn"><span>💻</span> View Code</li>
+        </ul>
+      </div>
+      
+      <div class="toolbar">
+        <button id="saveBtn">💾 Save</button>
+      </div>
+    </div>
+    
+    <!-- Canvas -->
+    <div class="canvas-wrapper">
+      <div class="canvas-header">
+        <span class="canvas-title" id="canvasTitle">index.html</span>
+        <span class="canvas-hint">Double-click to edit text • Click to select</span>
+      </div>
+      <div class="canvas-container">
+        <iframe id="canvasFrame" class="canvas-frame desktop" src="http://localhost:3003/index.html"></iframe>
+      </div>
+    </div>
+    
+    <!-- Properties Panel -->
+    <div class="props-panel">
+      <div class="props-header">Properties</div>
+      <div class="props-content" id="propsContent">
+        <div class="props-empty">
+          <p>Select an element to edit</p>
+          <p style="margin-top:10px">• Click to select</p>
+          <p>• Double-click to edit text</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="status-bar">
+    <span id="deviceStatus">Desktop View</span>
+    <span id="elementStatus">No selection</span>
+    <span id="saveStatus">Auto-save: ON</span>
+  </div>
+  
+  <div class="toast" id="toast">Saved!</div>
+
+  <script>
+    const files = {
+      index: 'index.html',
+      download: 'download.html',
+      tokenomics: 'tokenomics.html',
+      vault: 'vault.html',
+      wallet: 'wallet.html',
+      'rich-list': 'rich-list.html'
+    };
+    
+    let currentPage = 'index';
+    let currentDevice = 'desktop';
+    let selectedElement = null;
+    let undoStack = [];
+    let redoStack = [];
+    let isEditing = false;
+    
+    const canvasFrame = document.getElementById('canvasFrame');
+    const fileList = document.getElementById('fileList');
+    const propsContent = document.getElementById('propsContent');
+    const toast = document.getElementById('toast');
+    
+    canvasFrame.addEventListener('load', () => {
+      enableEditing();
+    });
+    
+    function enableEditing() {
+      try {
+        const doc = canvasFrame.contentDocument;
+        if (!doc) return;
+        doc.body.addEventListener('click', handleElementClick, true);
+        doc.body.addEventListener('dblclick', handleElementDblClick, true);
+      } catch (e) {
+        setTimeout(enableEditing, 500);
+      }
+    }
+    
+    function handleElementClick(e) {
+      if (isEditing) return;
+      e.preventDefault();
+      e.stopPropagation();
+      selectElement(e.target);
+    }
+    
+    function handleElementDblClick(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const target = e.target;
+      if (target.innerText && target.innerText.trim()) {
+        makeEditable(target);
+      }
+    }
+    
+    function selectElement(el) {
+      if (selectedElement) {
+        selectedElement.style.outline = '';
+      }
+      selectedElement = el;
+      selectedElement.style.outline = '2px dashed #e94560';
+      document.getElementById('elementStatus').textContent = el.tagName.toLowerCase();
+      showProperties(el);
+    }
+    
+    function showProperties(el) {
+      const tag = el.tagName.toLowerCase();
+      let html = `
+        <div class="props-section">
+          <h4>Element</h4>
+          <div class="prop-row"><label>Tag</label><input type="text" value="${tag}" disabled></div>
+        </div>`;
+      
+      if (el.id) {
+        html += `<div class="props-section"><h4>ID</h4><div class="prop-row"><label>Element ID</label><input type="text" id="propId" value="${el.id}"></div></div>`;
+      }
+      
+      if (el.className && typeof el.className === 'string') {
+        html += `<div class="props-section"><h4>Classes</h4><div class="prop-row"><label>CSS Classes</label><input type="text" id="propClasses" value="${el.className}"></div></div>`;
+      }
+      
+      if (el.innerText && el.innerText.trim() && el.innerText.length < 1000) {
+        html += `<div class="props-section"><h4>Text</h4><div class="prop-row"><label>Text Content</label><textarea id="propText">${el.innerText}</textarea></div></div>`;
+      }
+      
+      if (el.src) {
+        html += `<div class="props-section"><h4>Image</h4><div class="prop-row"><label>Image URL</label><input type="text" id="propSrc" value="${el.src}"></div></div>`;
+      }
+      
+      if (el.href) {
+        html += `<div class="props-section"><h4>Link</h4><div class="prop-row"><label>Link URL</label><input type="text" id="propHref" value="${el.href}"></div></div>`;
+      }
+      
+      const styleProps = [
+        { key: 'color', label: 'Text Color' },
+        { key: 'backgroundColor', label: 'Background' },
+        { key: 'fontSize', label: 'Font Size' },
+        { key: 'fontFamily', label: 'Font Family' },
+        { key: 'textAlign', label: 'Text Align' },
+        { key: 'padding', label: 'Padding' },
+        { key: 'margin', label: 'Margin' },
+        { key: 'width', label: 'Width' },
+        { key: 'height', label: 'Height' },
+        { key: 'border', label: 'Border' },
+        { key: 'borderRadius', label: 'Border Radius' },
+        { key: 'opacity', label: 'Opacity' }
+      ];
+      
+      html += `<div class="props-section"><h4>Styles</h4>`;
+      styleProps.forEach(prop => {
+        const value = el.style[prop.key] || '';
+        if (prop.key.includes('Color') || prop.key === 'backgroundColor') {
+          html += `<div class="prop-row"><label>${prop.label}</label><div class="color-row"><input type="color" id="prop_${prop.key}_color" value="${value || '#000000'}"><input type="text" id="prop_${prop.key}" value="${value}"></div></div>`;
+        } else {
+          html += `<div class="prop-row"><label>${prop.label}</label><input type="text" id="prop_${prop.key}" value="${value}"></div>`;
+        }
+      });
+      html += `</div><button class="apply-btn" id="applyBtn">Apply Changes</button>`;
+      
+      propsContent.innerHTML = html;
+      document.getElementById('applyBtn').addEventListener('click', applyChanges);
+    }
+    
+    function applyChanges() {
+      if (!selectedElement) return;
+      saveUndo();
+      
+      const propText = document.getElementById('propText');
+      if (propText) selectedElement.innerText = propText.value;
+      
+      const propClasses = document.getElementById('propClasses');
+      if (propClasses) selectedElement.className = propClasses.value;
+      
+      const propSrc = document.getElementById('propSrc');
+      if (propSrc) selectedElement.src = propSrc.value;
+      
+      const propHref = document.getElementById('propHref');
+      if (propHref) selectedElement.href = propHref.value;
+      
+      const styleProps = ['color', 'backgroundColor', 'fontSize', 'fontFamily', 'textAlign', 'padding', 'margin', 'width', 'height', 'border', 'borderRadius', 'opacity'];
+      styleProps.forEach(key => {
+        const input = document.getElementById('prop_' + key);
+        const colorInput = document.getElementById('prop_' + key + '_color');
+        const value = colorInput ? colorInput.value : input?.value;
+        if (value) selectedElement.style[key] = value;
+      });
+      
+      autoSave();
+    }
+    
+    function makeEditable(el) {
+      isEditing = true;
+      el.contentEditable = true;
+      el.focus();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      
+      const saveOnBlur = () => {
+        el.contentEditable = false;
+        isEditing = false;
+        el.removeEventListener('blur', saveOnBlur);
+        autoSave();
+      };
+      el.addEventListener('blur', saveOnBlur);
+    }
+    
+    document.querySelectorAll('.device-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentDevice = btn.dataset.device;
+        canvasFrame.className = 'canvas-frame ' + currentDevice;
+        document.getElementById('deviceStatus').textContent = currentDevice.charAt(0).toUpperCase() + currentDevice.slice(1) + ' View';
+      });
+    });
+    
+    fileList.querySelectorAll('li').forEach(li => {
+      if (li.dataset.file) {
+        li.addEventListener('click', () => {
+          fileList.querySelectorAll('li').forEach(l => l.classList.remove('active'));
+          li.classList.add('active');
+          currentPage = li.dataset.file;
+          document.getElementById('canvasTitle').textContent = files[currentPage];
+          canvasFrame.src = 'http://localhost:3003/' + files[currentPage];
+          setTimeout(enableEditing, 500);
+        });
+      }
+    });
+    
+    function saveUndo() {
+      const doc = canvasFrame.contentDocument;
+      if (doc) {
+        undoStack.push(doc.body.innerHTML);
+        if (undoStack.length > 50) undoStack.shift();
+        redoStack = [];
+      }
+    }
+    
+    document.getElementById('undoBtn').addEventListener('click', () => {
+      if (undoStack.length > 0) {
+        const doc = canvasFrame.contentDocument;
+        redoStack.push(doc.body.innerHTML);
+        doc.body.innerHTML = undoStack.pop();
+        autoSave();
+      }
+    });
+    
+    document.getElementById('redoBtn').addEventListener('click', () => {
+      if (redoStack.length > 0) {
+        const doc = canvasFrame.contentDocument;
+        undoStack.push(doc.body.innerHTML);
+        doc.body.innerHTML = redoStack.pop();
+        autoSave();
+      }
+    });
+    
+    document.getElementById('previewBtn').addEventListener('click', () => {
+      window.open('http://localhost:3003/' + files[currentPage], '_blank');
+    });
+    
+    document.getElementById('codeBtn').addEventListener('click', () => {
+      const doc = canvasFrame.contentDocument;
+      const code = doc.documentElement.outerHTML;
+      const newWindow = window.open('', '_blank');
+      newWindow.document.write('<pre style="background:#1a1a25;color:#ccc;padding:20px;overflow:auto;white-space:pre-wrap;word-wrap:break-word">' + code.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>');
+    });
+    
+    async function saveChanges() {
+      const doc = canvasFrame.contentDocument;
+      const content = doc.documentElement.outerHTML;
+      const path = '/Users/ryanbrenner/Desktop/NEETstuff Website/' + files[currentPage];
+      
+      try {
+        const res = await fetch('http://localhost:3000/mcp/execute', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ tool: 'writeFile', parameters: { path, content } })
+        });
+        const json = await res.json();
+        if (json.success && json.result.success) {
+          showToast('Saved!');
+        }
+      } catch (e) {
+        console.error('Save failed:', e);
+      }
+    }
+    
+    let autoSaveTimer;
+    function autoSave() {
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(saveChanges, 2000);
+      document.getElementById('saveStatus').textContent = 'Auto-save: Pending...';
+    }
+    
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      clearTimeout(autoSaveTimer);
+      saveChanges();
+    });
+    
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+      document.getElementById('saveStatus').textContent = 'Auto-save: ON';
+    }
+  </script>
+</body>
+</html>

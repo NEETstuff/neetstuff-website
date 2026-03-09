@@ -1,0 +1,13 @@
+{
+  "name": "neetstuff-editor",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3003",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "grapesjs": "^0.22.14",
+    "vite": "^7.3.1"
+  }
+}
